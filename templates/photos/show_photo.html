@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | Dag Stuan{% endblock %}
+
+{% block arrows %}
+	{% if prev_id %}
+		<div id="prevarrow">
+			<a id="prevlink" href="/{{ prev_id }}">← PREVIOUS</a>
+		</div>
+	{% endif %}
+	{% if next_id %}
+		<div id="nextarrow">
+			<a id="nextlink" href="/{{ next_id }}">NEXT →</a>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+	<img id="current_photo" src="{{ post.photo.image_file.url }}" alt="{{ post.title }}"/>
+{% endblock %}
+
+{% block bottom %}
+{% load comments %}
+<div id="title">
+{% if post.title %}
+<span class="head">{{ post.title }}</span> 
+{% endif %}
+
+{% if post.comment %}
+<span class="comment">{{ post.comment }}</span>
+{% endif %}
+</div>
+<div id="information">
+	<div id="meta">
+		<span class="header">Published</span> {{ post.pub_date|date:"jS" }} of 
+		{{post.pub_date|date:"F Y"}}
+	</div>
+	<div id="exif">
+		<span class="header">Exif</span> <span id="photo_focal_length">{{ post.photo.exif_focal_length }}</span>, <span id="photo_shutter_speed">{{ post.photo.exif_shutter_speed }}</span>, <span id="photo_aperture">{{ post.photo.exif_aperture}}</span>, <span id="photo_iso">{{ post.photo.exif_iso }}</span>
+	</div>
+	<div id="permalink">
+		<a href="{{ post.get_absolute_url }}">permalink</a>
+	</div>
+	<div id="comments_count">
+		{% get_comment_count for post as comment_count %}
+		<a id="show_comments_link" href="/{{ post.id }}/comments#comments">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
+	</div>
+</div>
+{% endblock %}
+
+{% block post_comments %}
+	{% if not post_comments %}
+	<div id="post_comments_wrap">
+	{% endif %}
+		<div id="post_comments">
+			{% get_comment_count for post as comment_count %}
+			
+			<h2>Comments</h2>
+			
+			{% if comment_count > 0 %}
+			{% render_comment_list for post %}
+			{% else %}
+			<p>No comments yet..</p><br />
+			{% endif %}
+			
+			{% if comment_count > 0 %}
+			<div id="comment_line"></div>
+			{% endif %}
+			
+			{% render_comment_form for post %}
+		</div>
+	{% if not post_comments %}
+	</div>
+	{% endif %}
+{% endblock %}

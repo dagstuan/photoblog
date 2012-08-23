@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}Dag Stuan{% endblock %}</title>
+	<link rel="stylesheet" href="/media/style.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="/media/js/site.js"></script>
+	<script type="text/javascript" src="/media/js/jquery.cycle.lite.js"></script>
+</head>
+
+<body>
+	<div id="wrap"> <!-- START wrap -->
+		<div id="top"> <!-- START top -->
+			<a href="/"><span id="logo"></span></a>
+			<div id="menu"> <!-- START menu -->
+				<ul>
+					<li><a href="/">INDEX</a></li>
+					<li><a href="/browse">BROWSE</a></li>
+					<li><a href="/about">ABOUT</a></li>					
+				</ul>
+			</div> <!-- END menu -->
+			<span class="hr"></span>
+			<div id="arrows"> <!-- START arrows -->
+				{% block arrows %}{% endblock %}
+			</div> <!-- END arrows -->
+		</div> <!-- END top -->
+		
+		<div id="content_wrap">
+			
+			<div id="current_photo_wrap">
+				<div id="content"> <!-- START content -->
+					{% block content %}{% endblock %}
+				</div> <!-- END content -->
+				<div id="bottom"> <!-- START bottom -->
+					{% block bottom %}{% endblock %}
+				</div> <!-- END bottom -->
+			</div>
+			
+		</div>
+		
+		{% block post_comments %}{% endblock %}
+		<div id="footer"> <!-- START footer -->
+			{% block footer %}
+			<p>Copyright &copy; 2012 - Dag Stuan</p>
+			{% endblock %}
+		</div> <!-- END footer -->
+	</div> <!-- END wrap -->
+</body>
+</html>

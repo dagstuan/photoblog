@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Browse | Dag Stuan{% endblock %}
+
+{% block content %}
+	<div id="browse_grid">
+	{% for post in posts %}
+		<a href="{{ post.get_absolute_url }}"><img src="{{ post.photo.image_thumb.url }}" alt="{{ post.title }}"></a>
+	{% endfor %}
+	</div>
+	<div id="browse_menu">
+		<h1>Years</h1>
+		<ul>
+			{% for year in years %}
+			<li><a href="/browse/{{ year }}">{{ year }}</a></li>
+			{% endfor %}         
+		</ul>
+		<h1>Tags</h1>
+		<ul>
+			{% for tag in tags %}
+			<li><a href="/browse/{{ tag }}">{{ tag }}</a></li>
+			{% endfor%}
+		</ul>
+	</div>
+{% endblock %}
