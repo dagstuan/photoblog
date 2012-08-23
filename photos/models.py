@@ -124,6 +124,12 @@ class Photo(models.Model):
                 Tag.objects.add_tag(self, tag.replace(' ', ''))
     
     def delete(self, *args, **kwargs):
+        tags = Tag.objects.get_for_object(self)
+        
+        for tag in tags:
+            if tag.items.all().count() == 1:
+                tag.delete()
+        
         try:
             self.image_file.delete()
         except:
