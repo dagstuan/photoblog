@@ -92,24 +92,7 @@ class Photo(models.Model):
         
         self.image_file.name = 'images/' + filename2x
         
-        pdb.set_trace()
-        
-        os.rename(path + filename1x, path + filename2x)
-        
         cropsize = min(img.size)
-        
-        # Creating the 1x image
-        non_retina_size = (900, 700)
-        
-        non_retina_image = copy.copy(img)
-        non_retina_image.thumbnail(non_retina_size, Image.ANTIALIAS)
-        
-        non_retina_io = StringIO.StringIO()
-        non_retina_image.save(non_retina_io, format='JPEG')
-        
-        non_retina_file = InMemoryUploadedFile(non_retina_io, None, filename1x, 'image/jpeg', non_retina_io.len, None)
-        
-        self.image_file1x.save(filename1x, non_retina_file, save=False)
         
         # Creating square thumb from middle of picture
         w,h = img.size
@@ -122,11 +105,6 @@ class Photo(models.Model):
         crop = img.crop((x1,y1,x2,y2))
         thumb_size = (122, 122)
         crop.thumbnail(thumb_size, Image.ANTIALIAS)
-        
-        #
-        #filename = (img.filename.split('/')[-1]).split('.')        
-        #filename[0] += '_thumb'
-        #filename2 = filename[0] + '.jpg'
 
         # Saving thumb while keeping it in memory
         thumb_io = StringIO.StringIO()
@@ -135,6 +113,21 @@ class Photo(models.Model):
         thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb, 'image/jpeg', thumb_io.len, None)
         
         self.image_thumb.save(filename_thumb, thumb_file, save=False)
+        
+        # Creating the 1x image
+        non_retina_size = (900, 700)
+        
+        non_retina_image = copy.copy(img)
+        non_retina_image.thumbnail(non_retina_size, Image.ANTIALIAS)
+        
+        non_retina_io = StringIO.StringIO()
+        non_retina_image.save(non_retina_io, format='JPEG')
+        
+        non_retina_file = InMemoryUploadedFile(non_retina_io, None, filename1x, 'image/jpeg', non_retina_io.len, None)
+        
+        os.rename(path + filename1x, path + filename2x)
+        
+        self.image_file1x.save(filename1x, non_retina_file, save=False)
                 
         super(Photo, self).save(*args, **kwargs)
         
