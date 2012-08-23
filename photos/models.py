@@ -19,6 +19,11 @@ class Post(models.Model):
     def published(self):
         return self.pub_date <= datetime.date.today()
     
+    def delete(self, *args, **kwargs):
+        self.photo.delete()
+        
+        super(Post, self).delete(*args, **kwargs)
+    
     @models.permalink
     def get_absolute_url(self):
         return ('photos.views.photo', [str(self.id)])
@@ -117,6 +122,19 @@ class Photo(models.Model):
             
             for tag in tags:
                 Tag.objects.add_tag(self, tag.replace(' ', ''))
-
+    
+    def delete(self, *args, **kwargs):
+        try:
+            self.image_file.delete()
+        except:
+            pass
+        
+        try:
+            self.image_thumb.delete()
+        except:
+            pass
+        
+        super(Photo, self).delete(*args, **kwargs)
+    
     def __unicode__(self):
         return self.post.title
