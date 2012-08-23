@@ -8,6 +8,8 @@ import StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from tagging.fields import TagField
 from tagging.models import Tag
+import copy
+import os
 
 import pdb
 
@@ -31,6 +33,7 @@ class Post(models.Model):
 class Photo(models.Model):
     # TODO: remove title attribute, use self.post.title instead
     image_file = models.ImageField(upload_to=settings.IMAGE_FOLDER)
+    image_file1x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     image_thumb = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     post = models.OneToOneField(Post)
     exif_focal_length = models.CharField(max_length=50, editable=False)
@@ -52,7 +55,7 @@ class Photo(models.Model):
         except:
             super(Photo, self).save(*args, **kwargs)
             img = Image.open(self.image_file.path)
-        
+
         exif = img._getexif()
         
         # Finding EXIF focal length
@@ -75,14 +78,40 @@ class Photo(models.Model):
         else:
             self.exif_shutter_speed = str(shutter_divisor) + ' sec'        
         
-        max_size = (900,700)
+        path = settings.MEDIA_ROOT + settings.IMAGE_FOLDER
+        
+        filename = (img.filename.split('/')[-1]).split('.')
+        filename2x = filename[0] + '_2x.jpg'
+        filename1x = filename[0] + '.jpg'
+        filename_thumb = filename[0] + '_thumb.jpg'
+
+        max_size = (1800,1400)
         
         if img.size > max_size:
             img.thumbnail(max_size, Image.ANTIALIAS)
-            img.save(img.filename, format='JPEG')
+        
+        self.image_file.name = 'images/' + filename2x
+        
+        pdb.set_trace()
+        
+        os.rename(path + filename1x, path + filename2x)
+        
+        cropsize = min(img.size)
+        
+        # Creating the 1x image
+        non_retina_size = (900, 700)
+        
+        non_retina_image = copy.copy(img)
+        non_retina_image.thumbnail(non_retina_size, Image.ANTIALIAS)
+        
+        non_retina_io = StringIO.StringIO()
+        non_retina_image.save(non_retina_io, format='JPEG')
+        
+        non_retina_file = InMemoryUploadedFile(non_retina_io, None, filename1x, 'image/jpeg', non_retina_io.len, None)
+        
+        self.image_file1x.save(filename1x, non_retina_file, save=False)
         
         # Creating square thumb from middle of picture
-        cropsize = min(img.size)
         w,h = img.size
         
         x1 = (w/2) - (cropsize/2)
@@ -94,21 +123,18 @@ class Photo(models.Model):
         thumb_size = (122, 122)
         crop.thumbnail(thumb_size, Image.ANTIALIAS)
         
-        path = settings.MEDIA_ROOT + settings.IMAGE_FOLDER
-        filename = (img.filename.split('/')[-1]).split('.')        
-        filename[0] += '_thumb'
-        filename2 = filename[0] + '.jpg'
-        filename = '.'.join(filename)
-        
-        filename = path + filename
-        
+        #
+        #filename = (img.filename.split('/')[-1]).split('.')        
+        #filename[0] += '_thumb'
+        #filename2 = filename[0] + '.jpg'
+
         # Saving thumb while keeping it in memory
         thumb_io = StringIO.StringIO()
         crop.save(thumb_io, format='JPEG')
         
-        thumb_file = InMemoryUploadedFile(thumb_io, None, filename2, 'image/jpeg', thumb_io.len, None)
+        thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb, 'image/jpeg', thumb_io.len, None)
         
-        self.image_thumb.save(filename2, thumb_file, save=False)
+        self.image_thumb.save(filename_thumb, thumb_file, save=False)
                 
         super(Photo, self).save(*args, **kwargs)
         
@@ -132,6 +158,11 @@ class Photo(models.Model):
         
         try:
             self.image_file.delete()
+        except:
+            pass
+            
+        try:
+            self.image_file1x.delete()
         except:
             pass
         
