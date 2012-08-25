@@ -2,4 +2,5 @@
 *.pot
 *.pyc
 local_settings.py
-/media/admin
+media/admin
+media/images
