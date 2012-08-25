@@ -129,6 +129,8 @@ body {
     background-color: #2B2B2B;
     padding: 5px;
     border: 1px solid #353535;
+    max-width: 900px;
+    max-height: 700px;
 }
 
 #content #browse_grid {
