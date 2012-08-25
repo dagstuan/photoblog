@@ -48,7 +48,6 @@ class Photo(models.Model):
     def get_tags(self):
         return Tag.objects.get_for_object(self)
     
-    
     def save(self, *args, **kwargs):        
         try:
             img = Image.open(self.image_file.path)
@@ -126,7 +125,6 @@ class Photo(models.Model):
         non_retina_file = InMemoryUploadedFile(non_retina_io, None, filename1x, 'image/jpeg', non_retina_io.len, None)
         
         os.rename(path + filename1x, path + filename2x)
-        
         self.image_file1x.save(filename1x, non_retina_file, save=False)
                 
         super(Photo, self).save(*args, **kwargs)
