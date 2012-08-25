@@ -65,7 +65,7 @@ def photo(request, photo_id, comments=False):
         retDict['post_id'] = post.id
         retDict['title'] = post.title
         retDict['comment'] = post.comment
-        retDict['photo_url'] = post.photo.image_file.url
+        retDict['photo_url'] = post.photo.image_file1x.url
         retDict['permalink'] = post.get_absolute_url()
         retDict['pub_date'] = dateformat.format(post.pub_date, "jS") + " of " + dateformat.format(post.pub_date, "F Y")
         
