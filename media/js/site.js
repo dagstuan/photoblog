@@ -1,3 +1,7 @@
+$(document).ready(function() {
+    $('#current_photo').retina();
+});
+
 var ready = true;
 
 var replacePhoto = function(newContent, callback) {    
@@ -13,8 +17,8 @@ var replacePhoto = function(newContent, callback) {
             
     newPhoto.find('#content img')
             .attr('src', newContent['photo_url'])
-            .attr('alt', newContent['title']);
-    
+            .attr('alt', newContent['title'])
+            .retina();
     
     newPhoto.find('#title .head')
             .text(newContent['title']);
