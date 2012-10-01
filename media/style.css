@@ -1,3 +1,8 @@
+@font-face {
+  font-family: GaramondPro;
+  src: url('/media/static/garamond.otf');
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -28,7 +33,7 @@ body {
 #top {
     position: relative;
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 #top #logo {
@@ -98,14 +103,22 @@ body {
     color: #666;
 }
 
-#top #arrows #prevarrow {
-    margin-left: 3px;
-    float: left;
+#prevlink {
+    position: absolute;
+    top: 46%;
+    height: 60px;
+    width: 39px;
+    left: -45px;
+    background-image: url('/media/static/leftarrow.svg');
 }
 
-#top #arrows #nextarrow {
-    margin-right: 3px;
-    float: right;
+#nextlink {
+    position: absolute;
+    top: 46%;
+    height: 60px;
+    width: 39px;
+    right: -57px;
+    background-image: url('/media/static/rightarrow.svg');
 }
 
 #content_wrap {
@@ -123,6 +136,8 @@ body {
 #content {
     text-align: center;
     margin: 0 auto;
+    width: 900px;
+    position: relative;
 }
 
 #content img {
@@ -147,7 +162,7 @@ body {
     text-align: left;
     color: #AAA;
     margin-bottom: 2px;
-    font: normal 1.8em Garamond,Palatino,Courier,serif;
+    font: normal 1.8em GaramondPro;
 }
 
 #content #browse_menu ul {
@@ -195,7 +210,8 @@ body {
 
 #about h1 {
     color: #777;
-    font: normal 2.4em Garamond,Palatino,Times,serif;
+    font: normal 2.4em GaramondPro;
+    margin-top: 8px;
     margin-bottom: 5px;
 }
 
@@ -208,7 +224,7 @@ body {
 }
 
 #about_content h2 {
-    font: normal 1.8em Garamond,Palatino,Times,serif;
+    font: normal 1.8em GaramondPro;
     margin-bottom: 5px;
     margin-top: 2px;
 }
@@ -233,7 +249,7 @@ body {
     margin-bottom: 15px;
     padding-left: 10px;
     color: #777;
-    font: normal 1.9em Garamond,Palatino,Times,serif;
+    font: normal 1.9em GaramondPro;
 }
 
 #bottom .comment {
@@ -295,7 +311,7 @@ body {
 }
 
 #post_comments h2 {
-    font: normal 1.9em Garamond,Palatino,Times,serif;
+    font: normal 1.9em GaramondPro;
     margin-bottom: 15px;
 }
 
@@ -305,7 +321,7 @@ body {
 
 #post_comments h3.leave_comment {
     width: 100%;
-    font: normal 1.7em Garamond,Palatino,Times,serif;
+    font: normal 1.7em GaramondPro;
     margin-bottom: 5px;
 }
 
@@ -319,7 +335,7 @@ body {
 
 #comments h3 {
     display: inline;
-    font: normal 1.5em Garamond,Palatino,Times,serif;
+    font: normal 1.5em GaramondPro;
     border-right: 1px solid #333;
     padding-right: 15px;
     margin-right: 15px;
