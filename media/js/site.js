@@ -18,11 +18,13 @@ var replacePhoto = function(newContent, callback) {
             .css('width', '100%')
             .css('top', '0')
             .css('left', '0');
-            
-    newPhoto.find('#content img')
-            .attr('src', newContent['photo_url'])
-            .attr('alt', newContent['title'])
-            .retina();
+    
+    newImg = newPhoto.find('#current_photo')
+    
+    newImg.attr('src', newContent['photo_url'])
+          .attr('alt', newContent['title'])
+          .retina();
+    
     
     newPhoto.find('#title .head')
             .text(newContent['title']);
@@ -64,10 +66,12 @@ var replacePhoto = function(newContent, callback) {
         comments.remove();
     });
     
-    oldPhoto.fadeOut(200, function() {
-        oldPhoto.remove();
-        newPhoto.fadeIn(200, function() {
-            ready = true;
+    newImg.bind('load', function() {
+        oldPhoto.fadeOut(200, function() {
+            oldPhoto.remove();
+            newPhoto.fadeIn(200, function() {
+                ready = true;
+            });
         });
     });
 }
