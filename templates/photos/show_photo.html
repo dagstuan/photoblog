@@ -2,21 +2,19 @@
 
 {% block title %}{{ post.title }} | Dag Stuan{% endblock %}
 
-{% block arrows %}
-	{% if prev_id %}
-		<div id="prevarrow">
-			<a id="prevlink" href="/{{ prev_id }}">← PREVIOUS</a>
-		</div>
-	{% endif %}
-	{% if next_id %}
-		<div id="nextarrow">
-			<a id="nextlink" href="/{{ next_id }}">NEXT →</a>
-		</div>
-	{% endif %}
-{% endblock %}
-
 {% block content %}
 	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" alt="{{ post.title }}"/>
+	
+	<div id='arrows'>
+		{% if prev_id %}
+		<a id="prevlink" href="/{{ prev_id }}"></a>
+		{% endif %}
+
+		{% if next_id %}
+		<a id="nextlink" href="/{{ next_id }}"></a>
+		{% endif %}
+	</div>
+	
 {% endblock %}
 
 {% block bottom %}
