@@ -107,7 +107,7 @@ body {
     position: absolute;
     top: 46%;
     height: 60px;
-    width: 39px;
+    width: 31px;
     left: -45px;
     background-image: url('/media/static/leftarrow.svg');
 }
@@ -116,8 +116,8 @@ body {
     position: absolute;
     top: 46%;
     height: 60px;
-    width: 39px;
-    right: -57px;
+    width: 31px;
+    right: -47px;
     background-image: url('/media/static/rightarrow.svg');
 }
 
@@ -146,6 +146,7 @@ body {
     border: 1px solid #353535;
     max-width: 900px;
     max-height: 700px;
+    margin-left: -5px;
 }
 
 #content #browse_grid {

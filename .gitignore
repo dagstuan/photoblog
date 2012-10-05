@@ -3,3 +3,4 @@
 *.pyc
 local_settings.py
 media/images
+photoblogdb
