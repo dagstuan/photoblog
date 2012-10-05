@@ -2,6 +2,10 @@ $(document).ready(function() {
     $('#current_photo').retina();
 });
 
+$(window).load(function() {
+    $('#content').css('width', $('#current_photo').width())
+})
+
 var ready = true;
 
 var replacePhoto = function(newContent, callback) {    
@@ -14,11 +18,13 @@ var replacePhoto = function(newContent, callback) {
             .css('width', '100%')
             .css('top', '0')
             .css('left', '0');
-            
-    newPhoto.find('#content img')
-            .attr('src', newContent['photo_url'])
-            .attr('alt', newContent['title'])
-            .retina();
+    
+    newImg = newPhoto.find('#current_photo')
+    
+    newImg.attr('src', newContent['photo_url'])
+          .attr('alt', newContent['title'])
+          .retina();
+    
     
     newPhoto.find('#title .head')
             .text(newContent['title']);
@@ -52,41 +58,37 @@ var replacePhoto = function(newContent, callback) {
     
     var comments = $('#post_comments');
     
-    fixNavigationLinks(newContent);
+    fixNavigationLinks(newPhoto.find('#arrows'), newContent);
+    
+    newPhoto.find('#content').css('width', newContent['exif']['width'])
     
     comments.fadeOut(200, function() {
         comments.remove();
     });
     
-    oldPhoto.fadeOut(200, function() {
-        oldPhoto.remove();
-        newPhoto.fadeIn(200, function() {
-            ready = true;
+    newImg.bind('load', function() {
+        oldPhoto.fadeOut(200, function() {
+            oldPhoto.remove();
+            newPhoto.fadeIn(200, function() {
+                ready = true;
+            });
         });
     });
 }
 
-var fixNavigationLinks = function(newContent) {
-    var arrows = $('#arrows')
-    
+var fixNavigationLinks = function(arrows, newContent) {
     arrows.empty()
-    
+
     if(typeof newContent['prev_id'] != 'undefined') {
-        arrows.append($('<div></div>').attr('id', 'prevarrow')
-                                      .append($('<a></a>').attr('id', 'prevlink')
-                                                          .attr('href', '/'+newContent['prev_id'])
-                                                          .text('← PREVIOUS')
-                                      )
-                     )
+        arrows.append($('<a></a>').attr('id', 'prevlink')
+                                  .attr('href', '/'+newContent['prev_id'])
+               )
     }
     
     if(typeof newContent['next_id'] != 'undefined') {
-        arrows.append($('<div></div>').attr('id', 'nextarrow')
-                                      .append($('<a></a>').attr('id', 'nextlink')
-                                                          .attr('href', '/'+newContent['next_id'])
-                                                          .text('NEXT →')
-                                             )
-                     )
+        arrows.append($('<a></a>').attr('id', 'nextlink')
+                          .attr('href', '/'+newContent['next_id'])
+               )
     }
 }
 
