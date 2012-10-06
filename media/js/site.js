@@ -2,10 +2,6 @@ $(document).ready(function() {
     $('#current_photo').retina();
 });
 
-$(window).load(function() {
-    $('#content').css('width', $('#current_photo').width())
-})
-
 var ready = true;
 
 var replacePhoto = function(newContent, callback) {    
