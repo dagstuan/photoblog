@@ -3,6 +3,7 @@
 {% block title %}{{ post.title }} | Dag Stuan{% endblock %}
 
 {% block content %}
+<div id="content" style="width: {{ post.photo.image_file1x.width }}px; "> <!-- START content -->
 	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" alt="{{ post.title }}"/>
 	
 	<div id='arrows'>
@@ -14,7 +15,7 @@
 		<a id="nextlink" href="/{{ next_id }}"></a>
 		{% endif %}
 	</div>
-	
+</div> <!-- END content -->
 {% endblock %}
 
 {% block bottom %}

@@ -3,6 +3,7 @@
 {% block title %}Browse | Dag Stuan{% endblock %}
 
 {% block content %}
+<div id="content"> <!-- START content -->
 	<div id="browse_grid">
 	{% for post in posts %}
 		<a href="{{ post.get_absolute_url }}"><img src="{{ post.photo.image_thumb.url }}" alt="{{ post.title }}"></a>
@@ -22,4 +23,5 @@
 			{% endfor%}
 		</ul>
 	</div>
+</div> <!-- END content -->
 {% endblock %}
