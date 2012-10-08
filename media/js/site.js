@@ -34,8 +34,6 @@ var opts = {
   left: 'auto' // Left position relative to parent in px
 };
 
-var spinner = new Spinner(opts);
-
 var displayLoading = function() {
     var background = $('<div></div>').attr('class', 'loadingMessage')
                     .css('width', $('#current_photo').width())
@@ -52,7 +50,7 @@ var displayLoading = function() {
                     .appendTo('#content');
     
     var target = document.getElementById('content');
-    spinner.spin(target);
+    var spinner = new Spinner(opts).spin(target);
     $('.spinner').css('display', 'none');
     
     background.fadeIn();
