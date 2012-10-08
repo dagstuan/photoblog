@@ -1,10 +1,11 @@
 $(document).ready(function() {
     $('#current_photo').retina();
+    
+    $('#browse_grid img').bind('load', fadeInPhoto)
 });
 
 // Key bindings
 $(document).keydown(function(e) {
-    console.log(e.keyCode)
     if(e.keyCode == 37 || e.keyCode == 74) {
         $('#prevlink').trigger('click')
     }
@@ -14,6 +15,60 @@ $(document).keydown(function(e) {
 });
 
 var ready = true;
+
+var opts = {
+  lines: 13, // The number of lines to draw
+  length: 7, // The length of each line
+  width: 4, // The line thickness
+  radius: 10, // The radius of the inner circle
+  corners: 1, // Corner roundness (0..1)
+  rotate: 0, // The rotation offset
+  color: '#FFF', // #rgb or #rrggbb
+  speed: 1, // Rounds per second
+  trail: 60, // Afterglow percentage
+  shadow: false, // Whether to render a shadow
+  hwaccel: false, // Whether to use hardware acceleration
+  className: 'spinner', // The CSS class to assign to the spinner
+  zIndex: 2e9, // The z-index (defaults to 2000000000)
+  top: 'auto', // Top position relative to parent in px
+  left: 'auto' // Left position relative to parent in px
+};
+
+var spinner = new Spinner(opts);
+
+var displayLoading = function() {
+    var background = $('<div></div>').attr('class', 'loadingMessage')
+                    .css('width', $('#current_photo').width())
+                    .css('height', $('#current_photo').height())
+                    .css('position', 'absolute')
+                    .css('top', '0')
+                    .css('left', '0')
+                    .css('background', '#2B2B2B')
+                    .css('border', '1px solid #353535')
+                    .css('padding', '5px')
+                    .css('margin-left', '-5px')
+                    .css('opacity', '0.7')
+                    .css('display', 'none')
+                    .appendTo('#content');
+    
+    var target = document.getElementById('content');
+    spinner.spin(target);
+    $('.spinner').css('display', 'none');
+    
+    background.fadeIn();
+    $('.spinner').fadeIn();
+}
+
+var hideLoading = function() {
+    loadingMsg = $('.loadingMessage')
+    
+    $('.spinner').animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
+        spinner.stop()
+    }});
+    loadingMsg.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
+        loadingMsg.remove()
+    }});
+}
 
 var replacePhoto = function(newContent, callback) {    
     document.title = newContent['title'] + ' | Dag Stuan'
@@ -68,14 +123,17 @@ var replacePhoto = function(newContent, callback) {
     fixNavigationLinks(newPhoto.find('#arrows'), newContent);
     
     newPhoto.find('#content').css('width', newContent['exif']['width'])
+                             .css('height', newContent['exif']['height'])
     
     comments.fadeOut(200, function() {
         comments.remove();
     });
     
     newImg.bind('load', function() {
+        hideLoading()
         oldPhoto.fadeOut(200, function() {
             oldPhoto.remove();
+            
             newPhoto.fadeIn(200, function() {
                 ready = true;
             });
@@ -99,6 +157,10 @@ var fixNavigationLinks = function(arrows, newContent) {
     }
 }
 
+var fadeInPhoto = function(evt) {
+    $(evt.currentTarget).fadeIn()
+}
+
 $(document).on('click', '#show_comments_link', function(evt) {
     window.location.href = $(this).attr('href')
     window.location.hash = '#comments'
@@ -111,10 +173,12 @@ $(document).on('click', '#prevlink', function(evt) {
 	    return false;
 	}
 	
+	displayLoading()
+	
 	ready = false;
 	url = $('#prevlink').attr('href');
 	
-	$.get(url, function(res) {
+    $.get(url, function(res) {
 		replacePhoto(res);
 	});
 });
@@ -125,11 +189,13 @@ $(document).on('click', '#nextlink', function(evt) {
 	    return false;
 	}
 	
+	displayLoading()
+	
 	ready = false;
 	url = $('#nextlink').attr('href');
 	
-	$.get(url, function(res) {
+    $.get(url, function(res) {
 		replacePhoto(res);
 	});
-	
 });
+
