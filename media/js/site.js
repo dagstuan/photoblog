@@ -61,9 +61,10 @@ var displayLoading = function() {
 
 var hideLoading = function() {
     loadingMsg = $('.loadingMessage')
+    spinner = $('.spinner')
     
-    $('.spinner').animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
-        spinner.stop()
+    spinner.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
+        spinner.remove()
     }});
     loadingMsg.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
         loadingMsg.remove()
