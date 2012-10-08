@@ -1,7 +1,26 @@
+// Makes sure the user cant spam the navigation buttons without animations finishing.
+var ready = false;
+
 $(document).ready(function() {
-    $('#current_photo').retina();
+    current_photo = $('#current_photo');
     
     $('#browse_grid img').bind('load', fadeInPhoto);
+    
+    if (current_photo.length) {
+        current_photo.retina()
+        current_photo.css('display', 'none')
+        displayLoading(false);
+        
+        current_photo.bind('load', function() {
+            hideLoading();
+            current_photo.fadeIn(function() {
+                current_photo.css('height', '')
+                             .css('width', '')
+                
+                ready = true;
+            });
+        });
+    };
 });
 
 // Key bindings
@@ -13,8 +32,6 @@ $(document).keydown(function(e) {
         $('#nextlink').trigger('click');
     };
 });
-
-var ready = true;
 
 var opts = {
   lines: 13, // The number of lines to draw
@@ -34,7 +51,7 @@ var opts = {
   left: 'auto' // Left position relative to parent in px
 };
 
-var displayLoading = function() {
+var displayLoading = function(fade) {
     var background = $('<div></div>').attr('class', 'loadingMessage')
                     .css('width', $('#current_photo').width())
                     .css('height', $('#current_photo').height())
@@ -53,8 +70,15 @@ var displayLoading = function() {
     var spinner = new Spinner(opts).spin(target);
     $('.spinner').css('display', 'none');
     
-    background.fadeIn();
-    $('.spinner').fadeIn();
+    if (fade) {
+        background.fadeIn();
+        $('.spinner').fadeIn();
+    }
+    else {
+        background.show()
+        $('.spinner').show()
+    }
+   
 }
 
 var hideLoading = function() {
@@ -174,7 +198,7 @@ $(document).on('click', '#prevlink', function(evt) {
 	    return false;
 	};
 	
-	displayLoading();
+	displayLoading(true);
 	
 	ready = false;
 	url = $('#prevlink').attr('href');
@@ -190,7 +214,7 @@ $(document).on('click', '#nextlink', function(evt) {
 	    return false;
 	};
 	
-	displayLoading();
+	displayLoading(true);
 	
 	ready = false;
 	url = $('#nextlink').attr('href');
