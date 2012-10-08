@@ -3,7 +3,7 @@
 {% block title %}{{ post.title }} | Dag Stuan{% endblock %}
 
 {% block content %}
-<div id="content" style="width: {{ post.photo.image_file1x.width }}px; "> <!-- START content -->
+<div id="content" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;"> <!-- START content -->
 	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" alt="{{ post.title }}"/>
 	
 	<div id='arrows'>

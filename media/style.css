@@ -138,6 +138,7 @@ body {
     margin: 0 auto;
     width: 900px;
     position: relative;
+    margin-bottom: 22px;
 }
 
 #content img {
@@ -152,10 +153,16 @@ body {
     margin-left: -5px;
 }
 
-#content #browse_grid {
+#browse_grid {
     float: left;
     text-align: left;
     width: 700px;
+}
+
+#browse_grid img {
+    display: none;
+    width: 122px;
+    height: 122px;
 }
 
 #content #browse_menu {
