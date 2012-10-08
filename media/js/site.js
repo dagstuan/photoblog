@@ -14,8 +14,19 @@ $(document).ready(function() {
         current_photo.css('display', 'none')
         displayLoading(false);
         
+        bottom = $('#bottom');
+        arrows = $('#arrows');
+        
+        // Hiding elements from view
+        bottom.css('visibility', 'hidden');
+        arrows.css('display', 'none')
+        
         current_photo.one('load', function() {
             hideLoading();
+            bottom.css('display', 'none')
+                       .css('visibility', '')
+                       .fadeIn();
+            arrows.fadeIn()
             current_photo.fadeIn(function() {
                 current_photo.css('height', '')
                              .css('width', '')
