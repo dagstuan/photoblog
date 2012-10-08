@@ -1,20 +1,37 @@
+// Makes sure the user cant spam the navigation buttons without animations finishing.
+var ready = false;
+
 $(document).ready(function() {
-    $('#current_photo').retina();
+    current_photo = $('#current_photo');
     
-    $('#browse_grid img').bind('load', fadeInPhoto)
+    $('#browse_grid img').bind('load', fadeInPhoto);
+    
+    if (current_photo.length) {
+        current_photo.retina()
+        current_photo.css('display', 'none')
+        displayLoading(false);
+        
+        current_photo.bind('load', function() {
+            hideLoading();
+            current_photo.fadeIn(function() {
+                current_photo.css('height', '')
+                             .css('width', '')
+                
+                ready = true;
+            });
+        });
+    };
 });
 
 // Key bindings
 $(document).keydown(function(e) {
     if(e.keyCode == 37 || e.keyCode == 74) {
-        $('#prevlink').trigger('click')
+        $('#prevlink').trigger('click');
     }
     else if (e.keyCode == 39 || e.keyCode == 75) {
-        $('#nextlink').trigger('click')
-    }
+        $('#nextlink').trigger('click');
+    };
 });
-
-var ready = true;
 
 var opts = {
   lines: 13, // The number of lines to draw
@@ -34,9 +51,7 @@ var opts = {
   left: 'auto' // Left position relative to parent in px
 };
 
-var spinner = new Spinner(opts);
-
-var displayLoading = function() {
+var displayLoading = function(fade) {
     var background = $('<div></div>').attr('class', 'loadingMessage')
                     .css('width', $('#current_photo').width())
                     .css('height', $('#current_photo').height())
@@ -52,26 +67,34 @@ var displayLoading = function() {
                     .appendTo('#content');
     
     var target = document.getElementById('content');
-    spinner.spin(target);
+    var spinner = new Spinner(opts).spin(target);
     $('.spinner').css('display', 'none');
     
-    background.fadeIn();
-    $('.spinner').fadeIn();
+    if (fade) {
+        background.fadeIn();
+        $('.spinner').fadeIn();
+    }
+    else {
+        background.show()
+        $('.spinner').show()
+    }
+   
 }
 
 var hideLoading = function() {
-    loadingMsg = $('.loadingMessage')
+    loadingMsg = $('.loadingMessage');
+    spinner = $('.spinner');
     
-    $('.spinner').animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
-        spinner.stop()
+    spinner.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
+        spinner.remove();
     }});
     loadingMsg.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
-        loadingMsg.remove()
+        loadingMsg.remove();
     }});
 }
 
 var replacePhoto = function(newContent, callback) {    
-    document.title = newContent['title'] + ' | Dag Stuan'
+    document.title = newContent['title'] + ' | Dag Stuan';
     
     var oldPhoto = $('#current_photo_wrap');
     var newPhoto = $('#current_photo_wrap').clone().appendTo('#content_wrap');
@@ -123,14 +146,14 @@ var replacePhoto = function(newContent, callback) {
     fixNavigationLinks(newPhoto.find('#arrows'), newContent);
     
     newPhoto.find('#content').css('width', newContent['exif']['width'])
-                             .css('height', newContent['exif']['height'])
+                             .css('height', newContent['exif']['height']);
     
     comments.fadeOut(200, function() {
         comments.remove();
     });
     
     newImg.bind('load', function() {
-        hideLoading()
+        hideLoading();
         oldPhoto.fadeOut(200, function() {
             oldPhoto.remove();
             
@@ -142,38 +165,40 @@ var replacePhoto = function(newContent, callback) {
 }
 
 var fixNavigationLinks = function(arrows, newContent) {
-    arrows.empty()
+    arrows.empty();
 
     if(typeof newContent['prev_id'] != 'undefined') {
         arrows.append($('<a></a>').attr('id', 'prevlink')
                                   .attr('href', '/'+newContent['prev_id'])
-               )
-    }
+               );
+    };
     
     if(typeof newContent['next_id'] != 'undefined') {
         arrows.append($('<a></a>').attr('id', 'nextlink')
                           .attr('href', '/'+newContent['next_id'])
-               )
-    }
+               );
+    };
 }
 
 var fadeInPhoto = function(evt) {
-    $(evt.currentTarget).fadeIn()
+    console.log("called");
+    
+    $(evt.currentTarget).fadeIn();
 }
 
 $(document).on('click', '#show_comments_link', function(evt) {
-    window.location.href = $(this).attr('href')
-    window.location.hash = '#comments'
-    window.location.reload()
+    window.location.href = $(this).attr('href');
+    window.location.hash = '#comments';
+    window.location.reload();
 })
 
 $(document).on('click', '#prevlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	}
+	};
 	
-	displayLoading()
+	displayLoading(true);
 	
 	ready = false;
 	url = $('#prevlink').attr('href');
@@ -187,9 +212,9 @@ $(document).on('click', '#nextlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	}
+	};
 	
-	displayLoading()
+	displayLoading(true);
 	
 	ready = false;
 	url = $('#nextlink').attr('href');
@@ -198,4 +223,3 @@ $(document).on('click', '#nextlink', function(evt) {
 		replacePhoto(res);
 	});
 });
-
