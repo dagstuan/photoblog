@@ -4,7 +4,7 @@
 
 {% block content %}
 <div id="content" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;"> <!-- START content -->
-	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" alt="{{ post.title }}"/>
+	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;" alt="{{ post.title }}"/>
 	
 	<div id='arrows'>
 		{% if prev_id %}
