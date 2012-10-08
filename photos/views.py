@@ -77,6 +77,7 @@ def photo(request, photo_id, comments=False):
             'focal_length': post.photo.exif_focal_length,
             'iso': post.photo.exif_iso,
             'width': post.photo.image_file1x.width,
+            'height': post.photo.image_file1x.height,
         }
         
         return HttpResponse(simplejson.dumps(retDict), content_type = 'application/json; charset=utf8')
