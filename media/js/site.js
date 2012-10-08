@@ -1,17 +1,17 @@
 $(document).ready(function() {
     $('#current_photo').retina();
     
-    $('#browse_grid img').bind('load', fadeInPhoto)
+    $('#browse_grid img').bind('load', fadeInPhoto);
 });
 
 // Key bindings
 $(document).keydown(function(e) {
     if(e.keyCode == 37 || e.keyCode == 74) {
-        $('#prevlink').trigger('click')
+        $('#prevlink').trigger('click');
     }
     else if (e.keyCode == 39 || e.keyCode == 75) {
-        $('#nextlink').trigger('click')
-    }
+        $('#nextlink').trigger('click');
+    };
 });
 
 var ready = true;
@@ -58,19 +58,19 @@ var displayLoading = function() {
 }
 
 var hideLoading = function() {
-    loadingMsg = $('.loadingMessage')
-    spinner = $('.spinner')
+    loadingMsg = $('.loadingMessage');
+    spinner = $('.spinner');
     
     spinner.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
-        spinner.remove()
+        spinner.remove();
     }});
     loadingMsg.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
-        loadingMsg.remove()
+        loadingMsg.remove();
     }});
 }
 
 var replacePhoto = function(newContent, callback) {    
-    document.title = newContent['title'] + ' | Dag Stuan'
+    document.title = newContent['title'] + ' | Dag Stuan';
     
     var oldPhoto = $('#current_photo_wrap');
     var newPhoto = $('#current_photo_wrap').clone().appendTo('#content_wrap');
@@ -122,14 +122,14 @@ var replacePhoto = function(newContent, callback) {
     fixNavigationLinks(newPhoto.find('#arrows'), newContent);
     
     newPhoto.find('#content').css('width', newContent['exif']['width'])
-                             .css('height', newContent['exif']['height'])
+                             .css('height', newContent['exif']['height']);
     
     comments.fadeOut(200, function() {
         comments.remove();
     });
     
     newImg.bind('load', function() {
-        hideLoading()
+        hideLoading();
         oldPhoto.fadeOut(200, function() {
             oldPhoto.remove();
             
@@ -141,38 +141,40 @@ var replacePhoto = function(newContent, callback) {
 }
 
 var fixNavigationLinks = function(arrows, newContent) {
-    arrows.empty()
+    arrows.empty();
 
     if(typeof newContent['prev_id'] != 'undefined') {
         arrows.append($('<a></a>').attr('id', 'prevlink')
                                   .attr('href', '/'+newContent['prev_id'])
-               )
-    }
+               );
+    };
     
     if(typeof newContent['next_id'] != 'undefined') {
         arrows.append($('<a></a>').attr('id', 'nextlink')
                           .attr('href', '/'+newContent['next_id'])
-               )
-    }
+               );
+    };
 }
 
 var fadeInPhoto = function(evt) {
-    $(evt.currentTarget).fadeIn()
+    console.log("called");
+    
+    $(evt.currentTarget).fadeIn();
 }
 
 $(document).on('click', '#show_comments_link', function(evt) {
-    window.location.href = $(this).attr('href')
-    window.location.hash = '#comments'
-    window.location.reload()
+    window.location.href = $(this).attr('href');
+    window.location.hash = '#comments';
+    window.location.reload();
 })
 
 $(document).on('click', '#prevlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	}
+	};
 	
-	displayLoading()
+	displayLoading();
 	
 	ready = false;
 	url = $('#prevlink').attr('href');
@@ -186,9 +188,9 @@ $(document).on('click', '#nextlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	}
+	};
 	
-	displayLoading()
+	displayLoading();
 	
 	ready = false;
 	url = $('#nextlink').attr('href');
@@ -197,4 +199,3 @@ $(document).on('click', '#nextlink', function(evt) {
 		replacePhoto(res);
 	});
 });
-
