@@ -4,14 +4,17 @@ var ready = false;
 $(document).ready(function() {
     current_photo = $('#current_photo');
     
-    $('#browse_grid img').bind('load', fadeInPhoto);
+    $('#browse_grid img').one('load', fadeInPhoto)
+                         .each(function() {
+                             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                         });
     
     if (current_photo.length) {
         current_photo.retina()
         current_photo.css('display', 'none')
         displayLoading(false);
         
-        current_photo.bind('load', function() {
+        current_photo.one('load', function() {
             hideLoading();
             current_photo.fadeIn(function() {
                 current_photo.css('height', '')
@@ -19,6 +22,9 @@ $(document).ready(function() {
                 
                 ready = true;
             });
+        })
+        .each(function() {
+             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
         });
     };
 });
@@ -152,7 +158,7 @@ var replacePhoto = function(newContent, callback) {
         comments.remove();
     });
     
-    newImg.bind('load', function() {
+    newImg.one('load', function() {
         hideLoading();
         oldPhoto.fadeOut(200, function() {
             oldPhoto.remove();
@@ -161,7 +167,10 @@ var replacePhoto = function(newContent, callback) {
                 ready = true;
             });
         });
-    });
+    })
+    .each(function() {
+         if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+    });;
 }
 
 var fixNavigationLinks = function(arrows, newContent) {
@@ -181,8 +190,6 @@ var fixNavigationLinks = function(arrows, newContent) {
 }
 
 var fadeInPhoto = function(evt) {
-    console.log("called");
-    
     $(evt.currentTarget).fadeIn();
 }
 
