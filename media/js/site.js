@@ -2,6 +2,17 @@ $(document).ready(function() {
     $('#current_photo').retina();
 });
 
+// Key bindings
+$(document).keydown(function(e) {
+    console.log(e.keyCode)
+    if(e.keyCode == 37 || e.keyCode == 74) {
+        $('#prevlink').trigger('click')
+    }
+    else if (e.keyCode == 39 || e.keyCode == 75) {
+        $('#nextlink').trigger('click')
+    }
+});
+
 var ready = true;
 
 var replacePhoto = function(newContent, callback) {    
