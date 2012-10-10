@@ -5,3 +5,5 @@ local_settings.py
 media/admin
 media/images
 photoblogdb
+updateprod.sh
+
