@@ -169,6 +169,7 @@ body {
 }
 
 #content #browse_menu h1 {
+    clear: both;
     text-align: left;
     color: #AAA;
     margin-bottom: 2px;
