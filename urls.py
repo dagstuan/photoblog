@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^browse/(?P<tag_name>\w+)/$', 'photos.views.browse'),
     url(r'^(?P<photo_id>\d+)/$', 'photos.views.photo'),
     url(r'^(?P<photo_id>\d+)/comments$', 'photos.views.photo_with_comments'),
+    url(r'^get_comments/(?P<photo_id>\d+)/$', 'photos.views.get_comments'),
     # url(r'^photoblog/', include('photoblog.foo.urls')),
     
     url(r'^comments/', include('django.contrib.comments.urls')),

@@ -4,7 +4,8 @@ var ready = false;
 $(document).ready(function() {
     current_photo = $('#current_photo');
     
-    $('#browse_grid img').one('load', fadeInPhoto)
+    $('#browse_grid img').css('display', 'none')
+                         .one('load', fadeInPhoto)
                          .each(function() {
                              if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
                          });
@@ -155,7 +156,7 @@ var replacePhoto = function(newContent, callback) {
             .attr('href', newContent['permalink']);
     
     newPhoto.find('#comments_count a')
-            .attr('href', '/'+newContent['post_id']+'/comments#comments')
+            .attr('href', '/'+newContent['post_id']+'/comments')
             .text(newContent['comment_count'] + ' ' + ((newContent['comment_count'] == 1) ? 'comment' : 'comments'));
     
     var comments = $('#post_comments');
@@ -164,9 +165,9 @@ var replacePhoto = function(newContent, callback) {
     
     newPhoto.find('#content').css('width', newContent['exif']['width'])
                              .css('height', newContent['exif']['height']);
-    
+                             
     comments.fadeOut(200, function() {
-        comments.remove();
+        comments.empty();
     });
     
     newImg.one('load', function() {
@@ -204,12 +205,6 @@ var fadeInPhoto = function(evt) {
     $(evt.currentTarget).fadeIn();
 }
 
-$(document).on('click', '#show_comments_link', function(evt) {
-    window.location.href = $(this).attr('href');
-    window.location.hash = '#comments';
-    window.location.reload();
-})
-
 $(document).on('click', '#prevlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
@@ -240,4 +235,21 @@ $(document).on('click', '#nextlink', function(evt) {
     $.get(url, function(res) {
 		replacePhoto(res);
 	});
+});
+
+$(document).on('click', '#show_comments_link', function(evt) {
+   evt.preventDefault();
+   
+   var id = $('#show_comments_link').attr('href').split('/')[1]
+   
+   $('#post_comments').css('display', 'none')
+                      .load('/get_comments/' + id + '/', function() {
+                          $('#post_comments').fadeIn()
+                          
+                          $('html, body').animate({
+                                                    scrollTop: $("#post_comments").offset().top,
+                                                    easing: 'swing'
+                                                  }, 2000);
+                      });
+                      
 });

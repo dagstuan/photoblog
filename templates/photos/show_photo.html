@@ -42,33 +42,15 @@
 	</div>
 	<div id="comments_count">
 		{% get_comment_count for post as comment_count %}
-		<a id="show_comments_link" href="/{{ post.id }}/comments#comments">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
+		<a id="show_comments_link" href="/{{ post.id }}/comments">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
 	</div>
 </div>
 {% endblock %}
 
 {% block post_comments %}
-	{% if not post_comments %}
-	<div id="post_comments_wrap">
-	{% endif %}
-		<div id="post_comments">
-			{% get_comment_count for post as comment_count %}
-			
-			<h2>Comments</h2>
-			
-			{% if comment_count > 0 %}
-			{% render_comment_list for post %}
-			{% else %}
-			<p>No comments yet..</p><br />
-			{% endif %}
-			
-			{% if comment_count > 0 %}
-			<div id="comment_line"></div>
-			{% endif %}
-			
-			{% render_comment_form for post %}
-		</div>
-	{% if not post_comments %}
-	</div>
+	{% if post_comments %}
+
+	{% include "photos/comments.html" %}
+	
 	{% endif %}
 {% endblock %}
