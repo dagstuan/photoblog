@@ -159,7 +159,6 @@ body {
 }
 
 #browse_grid img {
-    display: none;
     width: 122px;
     height: 122px;
 }
@@ -317,10 +316,6 @@ body {
 /*
  Post Comments
 */
-
-#post_comments_wrap {
-    display: none;
-}
 
 #post_comments h2 {
     font: normal 1.9em Garamond, GaramondPro;
