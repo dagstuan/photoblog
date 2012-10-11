@@ -5,8 +5,8 @@ $(document).ready(function() {
     current_photo = $('#current_photo');
     
     if (current_photo.length > 0) {
-        current_photo.retina()
-        current_photo.css('display', 'none')
+        current_photo.retina();
+        current_photo.css('display', 'none');
         displayLoading(false);
         
         bottom = $('#bottom');
@@ -14,13 +14,13 @@ $(document).ready(function() {
         
         // Hiding elements from view
         bottom.css('visibility', 'hidden');
-        arrows.css('display', 'none')
+        arrows.css('display', 'none');
         
         current_photo.one('load', function() {
             hideLoading();
             bottom.css('display', 'none')
-                       .css('visibility', '')
-                       .fadeIn();
+                  .css('visibility', '')
+                  .fadeIn();
             arrows.fadeIn();
             current_photo.fadeIn(function() {
                 current_photo.css('height', '')
@@ -46,7 +46,7 @@ $(document).ready(function() {
                        .each(function() {
                            if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
                        });
-    };
+    }
 });
 
 // Key bindings
@@ -56,7 +56,7 @@ $(document).keydown(function(e) {
     }
     else if (e.keyCode == 39 || e.keyCode == 75) {
         $('#nextlink').trigger('click');
-    };
+    }
 });
 
 var opts = {
@@ -75,7 +75,7 @@ var opts = {
   zIndex: 2e9, // The z-index (defaults to 2000000000)
   top: 'auto', // Top position relative to parent in px
   left: 'auto' // Left position relative to parent in px
-};
+}
 
 var displayLoading = function(fade) {
     var background = $('<div></div>').attr('class', 'loadingMessage')
@@ -101,10 +101,9 @@ var displayLoading = function(fade) {
         $('.spinner').fadeIn();
     }
     else {
-        background.show()
-        $('.spinner').show()
+        background.show();
+        $('.spinner').show();
     }
-   
 }
 
 var hideLoading = function() {
@@ -141,7 +140,6 @@ var replacePhoto = function(newContent, callback) {
     newImg.attr('src', newContent['photo_url'])
           .attr('alt', newContent['title'])
           .retina();
-    
     
     newPhoto.find('#title .head')
             .text(newContent['title']);
@@ -196,7 +194,7 @@ var replacePhoto = function(newContent, callback) {
     })
     .each(function() {
          if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-    });;
+    });
 }
 
 var fixNavigationLinks = function(arrows, newContent) {
@@ -230,7 +228,7 @@ $(document).on('click', '#prevlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	};
+	}
 	
 	displayLoading(true);
 	
@@ -246,7 +244,7 @@ $(document).on('click', '#nextlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	};
+	}
 	
 	displayLoading(true);
 	
@@ -262,36 +260,36 @@ $(document).on('click', '#show_comments_link', function(evt) {
    evt.preventDefault();
    
    if ($('#post_comments').children().length > 0) {
-       return
+       return;
    }
    
    var id = $('#show_comments_link').attr('href').split('/')[1];
    
-   var post_comments = $('#post_comments')
+   var post_comments = $('#post_comments');
    
    post_comments.css('display', 'none')
-                      .load('/get_comments/' + id + '/', function() {
-                          post_comments.fadeIn();
-                          
-                          scrollViewTo(post_comments, 1000);
-                          
-                          form = $('#post_comments form')
-                          
-                          form.submit(function(evt) {
-                              evt.preventDefault();
-                              
-                              $.ajax({
-                                  type: "POST",
-                                  data: form.serialize(),
-                                  url: form.attr('action'),
-                                  success: function(ret) {
-                                      console.log(ret);
-                                  },
-                                  error: function() {
-                                      console.log("errorrr!");
-                                  },
-                              });
-                          })
-                      });
+                .load('/get_comments/' + id + '/', function() {
+                    post_comments.fadeIn();
+                    
+                    scrollViewTo(post_comments, 1000);
+                    
+                    form = $('#post_comments form');
+                    
+                    form.submit(function(evt) {
+                        evt.preventDefault();
+                        
+                        $.ajax({
+                            type: "POST",
+                            data: form.serialize(),
+                            url: form.attr('action'),
+                            success: function(ret) {
+                                console.log(ret);
+                            },
+                            error: function() {
+                                console.log("errorrr!");
+                            },
+                        });
+                    })
+                });
                       
 });
