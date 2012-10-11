@@ -4,13 +4,7 @@ var ready = false;
 $(document).ready(function() {
     current_photo = $('#current_photo');
     
-    $('#browse_grid img').css('display', 'none')
-                         .one('load', fadeInPhoto)
-                         .each(function() {
-                             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-                         });
-    
-    if (current_photo.length) {
+    if (current_photo.length > 0) {
         current_photo.retina()
         current_photo.css('display', 'none')
         displayLoading(false);
@@ -27,10 +21,10 @@ $(document).ready(function() {
             bottom.css('display', 'none')
                        .css('visibility', '')
                        .fadeIn();
-            arrows.fadeIn()
+            arrows.fadeIn();
             current_photo.fadeIn(function() {
                 current_photo.css('height', '')
-                             .css('width', '')
+                             .css('width', '');
                 
                 ready = true;
             });
@@ -38,6 +32,20 @@ $(document).ready(function() {
         .each(function() {
              if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
         });
+    }
+    else if($('#browse_grid').length > 0) {
+        $('#browse_grid img').css('display', 'none')
+                             .one('load', fadeInPhoto)
+                             .each(function() {
+                                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                             });
+    }
+    else if($('#about').length > 0) {
+        $('#about img').css('display', 'none')
+                       .one('load', fadeInPhoto)
+                       .each(function() {
+                           if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                       });
     };
 });
 
@@ -114,6 +122,12 @@ var hideLoading = function() {
 var replacePhoto = function(newContent, callback) {    
     document.title = newContent['title'] + ' | Dag Stuan';
     
+    scrollViewTo($('body'), 500, function() {
+        $('#post_comments').fadeOut();
+    });
+    
+    $('#bottom').fadeOut();
+        
     var oldPhoto = $('#current_photo_wrap');
     var newPhoto = $('#current_photo_wrap').clone().appendTo('#content_wrap');
 
@@ -122,7 +136,7 @@ var replacePhoto = function(newContent, callback) {
             .css('top', '0')
             .css('left', '0');
     
-    newImg = newPhoto.find('#current_photo')
+    newImg = newPhoto.find('#current_photo');
     
     newImg.attr('src', newContent['photo_url'])
           .attr('alt', newContent['title'])
@@ -137,8 +151,8 @@ var replacePhoto = function(newContent, callback) {
     
     newPhoto.find('#meta')
             .empty()
-            .append($('<span></span>').attr('class', 'header').text('Published'))
-            .text(newContent['pub_date']);
+            .append($('<span></span>').attr('class', 'header').text('Published '))
+            .append(newContent['pub_date']);
     
     newPhoto.find('#photo_focal_length')
             .text(newContent['exif']['focal_length']);
@@ -201,6 +215,13 @@ var fixNavigationLinks = function(arrows, newContent) {
     };
 }
 
+var scrollViewTo = function(element, duration, callback) {
+    $('html, body').animate({
+                                scrollTop: element.offset().top,
+                                easing: 'swing',
+                            }, duration, callback);
+}
+
 var fadeInPhoto = function(evt) {
     $(evt.currentTarget).fadeIn();
 }
@@ -240,16 +261,37 @@ $(document).on('click', '#nextlink', function(evt) {
 $(document).on('click', '#show_comments_link', function(evt) {
    evt.preventDefault();
    
-   var id = $('#show_comments_link').attr('href').split('/')[1]
+   if ($('#post_comments').children().length > 0) {
+       return
+   }
    
-   $('#post_comments').css('display', 'none')
+   var id = $('#show_comments_link').attr('href').split('/')[1];
+   
+   var post_comments = $('#post_comments')
+   
+   post_comments.css('display', 'none')
                       .load('/get_comments/' + id + '/', function() {
-                          $('#post_comments').fadeIn()
+                          post_comments.fadeIn();
                           
-                          $('html, body').animate({
-                                                    scrollTop: $("#post_comments").offset().top,
-                                                    easing: 'swing'
-                                                  }, 2000);
+                          scrollViewTo(post_comments, 1000);
+                          
+                          form = $('#post_comments form')
+                          
+                          form.submit(function(evt) {
+                              evt.preventDefault();
+                              
+                              $.ajax({
+                                  type: "POST",
+                                  data: form.serialize(),
+                                  url: form.attr('action'),
+                                  success: function(ret) {
+                                      console.log(ret);
+                                  },
+                                  error: function() {
+                                      console.log("errorrr!");
+                                  },
+                              });
+                          })
                       });
                       
 });
