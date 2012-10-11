@@ -4,14 +4,9 @@ var ready = false;
 $(document).ready(function() {
     current_photo = $('#current_photo');
     
-    $('#browse_grid img').one('load', fadeInPhoto)
-                         .each(function() {
-                             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-                         });
-    
-    if (current_photo.length) {
-        current_photo.retina()
-        current_photo.css('display', 'none')
+    if (current_photo.length > 0) {
+        current_photo.retina();
+        current_photo.css('display', 'none');
         displayLoading(false);
         
         bottom = $('#bottom');
@@ -19,17 +14,17 @@ $(document).ready(function() {
         
         // Hiding elements from view
         bottom.css('visibility', 'hidden');
-        arrows.css('display', 'none')
+        arrows.css('display', 'none');
         
         current_photo.one('load', function() {
             hideLoading();
             bottom.css('display', 'none')
-                       .css('visibility', '')
-                       .fadeIn();
-            arrows.fadeIn()
+                  .css('visibility', '')
+                  .fadeIn();
+            arrows.fadeIn();
             current_photo.fadeIn(function() {
                 current_photo.css('height', '')
-                             .css('width', '')
+                             .css('width', '');
                 
                 ready = true;
             });
@@ -37,7 +32,21 @@ $(document).ready(function() {
         .each(function() {
              if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
         });
-    };
+    }
+    else if($('#browse_grid').length > 0) {
+        $('#browse_grid img').css('display', 'none')
+                             .one('load', fadeInPhoto)
+                             .each(function() {
+                                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                             });
+    }
+    else if($('#about').length > 0) {
+        $('#about img').css('display', 'none')
+                       .one('load', fadeInPhoto)
+                       .each(function() {
+                           if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                       });
+    }
 });
 
 // Key bindings
@@ -47,7 +56,7 @@ $(document).keydown(function(e) {
     }
     else if (e.keyCode == 39 || e.keyCode == 75) {
         $('#nextlink').trigger('click');
-    };
+    }
 });
 
 var opts = {
@@ -66,7 +75,7 @@ var opts = {
   zIndex: 2e9, // The z-index (defaults to 2000000000)
   top: 'auto', // Top position relative to parent in px
   left: 'auto' // Left position relative to parent in px
-};
+}
 
 var displayLoading = function(fade) {
     var background = $('<div></div>').attr('class', 'loadingMessage')
@@ -92,10 +101,9 @@ var displayLoading = function(fade) {
         $('.spinner').fadeIn();
     }
     else {
-        background.show()
-        $('.spinner').show()
+        background.show();
+        $('.spinner').show();
     }
-   
 }
 
 var hideLoading = function() {
@@ -113,6 +121,12 @@ var hideLoading = function() {
 var replacePhoto = function(newContent, callback) {    
     document.title = newContent['title'] + ' | Dag Stuan';
     
+    scrollViewTo($('body'), 500, function() {
+        $('#post_comments').fadeOut();
+    });
+    
+    $('#bottom').fadeOut();
+        
     var oldPhoto = $('#current_photo_wrap');
     var newPhoto = $('#current_photo_wrap').clone().appendTo('#content_wrap');
 
@@ -121,12 +135,11 @@ var replacePhoto = function(newContent, callback) {
             .css('top', '0')
             .css('left', '0');
     
-    newImg = newPhoto.find('#current_photo')
+    newImg = newPhoto.find('#current_photo');
     
     newImg.attr('src', newContent['photo_url'])
           .attr('alt', newContent['title'])
           .retina();
-    
     
     newPhoto.find('#title .head')
             .text(newContent['title']);
@@ -136,8 +149,8 @@ var replacePhoto = function(newContent, callback) {
     
     newPhoto.find('#meta')
             .empty()
-            .append($('<span></span>').attr('class', 'header').text('Published'))
-            .text(newContent['pub_date']);
+            .append($('<span></span>').attr('class', 'header').text('Published '))
+            .append(newContent['pub_date']);
     
     newPhoto.find('#photo_focal_length')
             .text(newContent['exif']['focal_length']);
@@ -155,7 +168,7 @@ var replacePhoto = function(newContent, callback) {
             .attr('href', newContent['permalink']);
     
     newPhoto.find('#comments_count a')
-            .attr('href', '/'+newContent['post_id']+'/comments#comments')
+            .attr('href', '/'+newContent['post_id']+'/comments')
             .text(newContent['comment_count'] + ' ' + ((newContent['comment_count'] == 1) ? 'comment' : 'comments'));
     
     var comments = $('#post_comments');
@@ -164,9 +177,9 @@ var replacePhoto = function(newContent, callback) {
     
     newPhoto.find('#content').css('width', newContent['exif']['width'])
                              .css('height', newContent['exif']['height']);
-    
+                             
     comments.fadeOut(200, function() {
-        comments.remove();
+        comments.empty();
     });
     
     newImg.one('load', function() {
@@ -181,7 +194,7 @@ var replacePhoto = function(newContent, callback) {
     })
     .each(function() {
          if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-    });;
+    });
 }
 
 var fixNavigationLinks = function(arrows, newContent) {
@@ -200,21 +213,22 @@ var fixNavigationLinks = function(arrows, newContent) {
     };
 }
 
+var scrollViewTo = function(element, duration, callback) {
+    $('html, body').animate({
+                                scrollTop: element.offset().top,
+                                easing: 'swing',
+                            }, duration, callback);
+}
+
 var fadeInPhoto = function(evt) {
     $(evt.currentTarget).fadeIn();
 }
-
-$(document).on('click', '#show_comments_link', function(evt) {
-    window.location.href = $(this).attr('href');
-    window.location.hash = '#comments';
-    window.location.reload();
-})
 
 $(document).on('click', '#prevlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	};
+	}
 	
 	displayLoading(true);
 	
@@ -230,7 +244,7 @@ $(document).on('click', '#nextlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
-	};
+	}
 	
 	displayLoading(true);
 	
@@ -240,4 +254,42 @@ $(document).on('click', '#nextlink', function(evt) {
     $.get(url, function(res) {
 		replacePhoto(res);
 	});
+});
+
+$(document).on('click', '#show_comments_link', function(evt) {
+   evt.preventDefault();
+   
+   if ($('#post_comments').children().length > 0) {
+       return;
+   }
+   
+   var id = $('#show_comments_link').attr('href').split('/')[1];
+   
+   var post_comments = $('#post_comments');
+   
+   post_comments.css('display', 'none')
+                .load('/get_comments/' + id + '/', function() {
+                    post_comments.fadeIn();
+                    
+                    scrollViewTo(post_comments, 1000);
+                    
+                    form = $('#post_comments form');
+                    
+                    form.submit(function(evt) {
+                        evt.preventDefault();
+                        
+                        $.ajax({
+                            type: "POST",
+                            data: form.serialize(),
+                            url: form.attr('action'),
+                            success: function(ret) {
+                                console.log(ret);
+                            },
+                            error: function() {
+                                console.log("errorrr!");
+                            },
+                        });
+                    })
+                });
+                      
 });

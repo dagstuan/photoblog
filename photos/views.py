@@ -88,7 +88,14 @@ def photo(request, photo_id, comments=False):
         csrfContext = RequestContext(request, retDict)
         
         return render_to_response('photos/show_photo.html', csrfContext)
+        
+def get_comments(request, photo_id):
+    post = get_object_or_404(Post, id=photo_id)
     
+    csrfContext = RequestContext(request, { 'post': post })
+    
+    return render_to_response('photos/comments.html', csrfContext)
+
 def photo_with_comments(request, photo_id):
     return photo(request, photo_id, comments=True)
 

@@ -1,0 +1,17 @@
+{% load comments %}
+
+{% get_comment_count for post as comment_count %}
+
+<h2>Comments</h2>
+
+{% if comment_count > 0 %}
+{% render_comment_list for post %}
+{% else %}
+<p>No comments yet..</p><br />
+{% endif %}
+
+{% if comment_count > 0 %}
+<div id="comment_line"></div>
+{% endif %}
+
+{% render_comment_form for post %}
