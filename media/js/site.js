@@ -51,10 +51,12 @@ $(document).ready(function() {
 
 // Key bindings
 $(document).keydown(function(e) {
-    if(e.keyCode == 37 || e.keyCode == 74) {
+    var tag = e.target.tagName.toLowerCase();
+    
+    if((e.keyCode == 37 || e.keyCode == 74) && tag != 'input' && tag != 'textarea') {
         $('#prevlink').trigger('click');
     }
-    else if (e.keyCode == 39 || e.keyCode == 75) {
+    else if ((e.keyCode == 39 || e.keyCode == 75) && tag != 'input' && tag != 'textarea') {
         $('#nextlink').trigger('click');
     }
 });
