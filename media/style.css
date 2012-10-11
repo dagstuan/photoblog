@@ -123,7 +123,6 @@ body {
 
 #content_wrap {
     position: relative;
-    min-height: 700px;
 }
 
 #content_wrap #current_photo_wrap {
@@ -159,7 +158,6 @@ body {
 }
 
 #browse_grid img {
-    display: none;
     width: 122px;
     height: 122px;
 }
@@ -173,7 +171,7 @@ body {
     text-align: left;
     color: #AAA;
     margin-bottom: 2px;
-    font: normal 1.8em GaramondPro;
+    font: normal 1.8em Garamond, GaramondPro;
 }
 
 #content #browse_menu ul {
@@ -208,11 +206,10 @@ body {
     text-align: left;
     padding: 5px;
     min-height: 460px;
-    margin-top: -20px;
+    margin-top: -15px;
     margin-left: 5px;
     margin-right: 5px;
     margin-bottom: 10px;
-    border-bottom: 1px solid #333;
 }
 
 #about img {
@@ -238,6 +235,13 @@ body {
     font: normal 1.8em Garamond, GaramondPro;
     margin-bottom: 5px;
     margin-top: 2px;
+}
+
+.hline {
+    width: 920px;
+    margin-left: -10px;
+    height: 1px;
+    background: #333;
 }
 
 #bottom {
@@ -318,10 +322,6 @@ body {
  Post Comments
 */
 
-#post_comments_wrap {
-    display: none;
-}
-
 #post_comments h2 {
     font: normal 1.9em Garamond, GaramondPro;
     margin-bottom: 15px;
@@ -370,6 +370,12 @@ body {
     position: absolute;
     right: 0;
     padding-bottom: 5px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+#footer #copyright {
+    float: right;
 }
 
 /* Media Queries */
