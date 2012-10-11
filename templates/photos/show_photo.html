@@ -49,8 +49,11 @@
 
 {% block post_comments %}
 	{% if post_comments %}
-
 	{% include "photos/comments.html" %}
-	
 	{% endif %}
+{% endblock %}
+
+{% block footer %}
+Navigate with j / k or arrow keys.
+<div id="copyright">Copyright &copy; 2012 - Dag Stuan</div>
 {% endblock %}
