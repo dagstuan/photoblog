@@ -6,4 +6,5 @@ media/admin
 media/images
 photoblogdb
 updateprod.sh
+settings.py
 
