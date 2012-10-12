@@ -14,9 +14,9 @@ import os
 import pdb
 
 class Post(models.Model):
-    title = models.CharField(max_length=50, blank=True)
-    pub_date = models.DateField(default=datetime.date.today)
-    comment = models.TextField(blank=True)
+    title = models.CharField("Title", max_length=50, blank=True)
+    pub_date = models.DateField("Publish date", default=datetime.date.today)
+    comment = models.TextField("Comment", blank=True)
     
     def published(self):
         return self.pub_date <= datetime.date.today()
@@ -29,9 +29,14 @@ class Post(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('photos.views.photo', [str(self.id)])
+        
+    def __unicode__(self):
+        return self.title
+        
+    class Meta:
+        verbose_name = 'Post'
 
 class Photo(models.Model):
-    # TODO: remove title attribute, use self.post.title instead
     image_file = models.ImageField("Image file 2x", upload_to=settings.IMAGE_FOLDER)
     image_file1x = models.ImageField("Image file 1x", upload_to=settings.IMAGE_FOLDER)
     image_thumb = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
@@ -148,3 +153,6 @@ class Photo(models.Model):
     
     def __unicode__(self):
         return self.post.title
+    
+    class Meta:
+        verbose_name = 'Photo'
