@@ -237,6 +237,10 @@ body {
     margin-top: 2px;
 }
 
+#about_content p {
+    margin-bottom: 10px;
+}
+
 .hline {
     width: 920px;
     margin-left: -10px;
