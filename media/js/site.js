@@ -256,6 +256,10 @@ $(document).on('submit', '#post_comments form', function(evt) {
                 $('#id_comment').val('');
                 $('#id_email').val('');
                 
+                var numComments = /\d+(?:\.\d+)?/.exec($('#show_comments_link').text());
+                
+                $('#show_comments_link').text(response['comment_count'] + ' ' + ((response['comment_count'] == 1) ? 'comment' : 'comments'));
+                
                 comments = $('#comments');
                 
                 var title_elem = $('<dt></dt>').css('display', 'none')
