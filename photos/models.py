@@ -32,8 +32,8 @@ class Post(models.Model):
 
 class Photo(models.Model):
     # TODO: remove title attribute, use self.post.title instead
-    image_file = models.ImageField(upload_to=settings.IMAGE_FOLDER)
-    image_file1x = models.ImageField(upload_to=settings.IMAGE_FOLDER)
+    image_file = models.ImageField("Image file 2x", upload_to=settings.IMAGE_FOLDER)
+    image_file1x = models.ImageField("Image file 1x", upload_to=settings.IMAGE_FOLDER)
     image_thumb = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     post = models.OneToOneField(Post)
     exif_focal_length = models.CharField(max_length=50, editable=False)
