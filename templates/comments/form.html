@@ -6,7 +6,7 @@
     {% if field.is_hidden %}
       <div>{{ field }}</div>
     {% else %}
-		{% if field.name != "url" and field.name != "email" %}
+		{% if field.name != "url" %}
 	      {% if field.errors %}{{ field.errors }}{% endif %}
 		  <p
 	        {% if field.errors %} class="error"{% endif %}
