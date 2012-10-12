@@ -17,6 +17,8 @@ class PostAdmin(admin.ModelAdmin):
     ]
     inlines = [PhotoInline]
     
+    list_display = ('title', 'comment')
+    
     def get_actions(self, request):
         actions = super(PostAdmin, self).get_actions(request)
         del actions['delete_selected']
