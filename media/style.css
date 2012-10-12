@@ -162,6 +162,13 @@ body {
     height: 122px;
 }
 
+.browse_thumb {
+    display: inline-block;
+    width: 135px;
+    height: 135px;
+    background: #2B2B2B;
+}
+
 #content #browse_menu {
     float: right;
 }

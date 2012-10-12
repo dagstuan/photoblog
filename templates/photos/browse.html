@@ -6,7 +6,9 @@
 <div id="content"> <!-- START content -->
 	<div id="browse_grid">
 	{% for post in posts %}
-		<a href="{{ post.get_absolute_url }}"><img src="{{ post.photo.image_thumb.url }}" alt="{{ post.title }}"></a>
+		<div class="browse_thumb">
+			<a href="{{ post.get_absolute_url }}"><img src="{{ post.photo.image_thumb.url }}" alt="{{ post.title }}"></a>
+		</div>
 	{% endfor %}
 	</div>
 	<div id="browse_menu">
