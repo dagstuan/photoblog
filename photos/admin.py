@@ -4,8 +4,6 @@ from django.contrib import admin
 
 from django.db import reset_queries, close_connection
 
-import pdb
-
 class PhotoInline(admin.TabularInline):
     model = Photo
 
