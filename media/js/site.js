@@ -254,6 +254,7 @@ $(document).on('submit', '#post_comments form', function(evt) {
                 
                 $('#id_name').val('');
                 $('#id_comment').val('');
+                $('#id_email').val('');
                 
                 comments = $('#comments');
                 
