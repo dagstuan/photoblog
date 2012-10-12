@@ -4,6 +4,8 @@ from django.contrib import admin
 
 from django.db import reset_queries, close_connection
 
+from django.contrib.admin import BooleanFieldListFilter
+
 class PhotoInline(admin.TabularInline):
     model = Photo
 
@@ -15,7 +17,7 @@ class PostAdmin(admin.ModelAdmin):
     ]
     inlines = [PhotoInline]
     
-    list_display = ('title', 'comment')
+    list_display = ('title', 'comment', 'admin_thumbnail', 'is_published')
     
     def get_actions(self, request):
         actions = super(PostAdmin, self).get_actions(request)
