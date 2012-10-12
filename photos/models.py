@@ -33,7 +33,7 @@ class Post(models.Model):
 class Photo(models.Model):
     # TODO: remove title attribute, use self.post.title instead
     image_file = models.ImageField(upload_to=settings.IMAGE_FOLDER)
-    image_file1x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
+    image_file1x = models.ImageField(upload_to=settings.IMAGE_FOLDER)
     image_thumb = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     post = models.OneToOneField(Post)
     exif_focal_length = models.CharField(max_length=50, editable=False)
@@ -80,16 +80,12 @@ class Photo(models.Model):
         path = settings.MEDIA_ROOT + settings.IMAGE_FOLDER
         
         filename = (img.filename.split('/')[-1]).split('.')
-        filename2x = filename[0] + '_2x.jpg'
-        filename1x = filename[0] + '.jpg'
         filename_thumb = filename[0] + '_thumb.jpg'
 
         max_size = (1800,1400)
         
         if img.size > max_size:
             img.thumbnail(max_size, Image.ANTIALIAS)
-        
-        self.image_file.name = 'images/' + filename2x
         
         cropsize = min(img.size)
         
@@ -112,21 +108,7 @@ class Photo(models.Model):
         thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb, 'image/jpeg', thumb_io.len, None)
         
         self.image_thumb.save(filename_thumb, thumb_file, save=False)
-        
-        # Creating the 1x image
-        non_retina_size = (900, 700)
-        
-        non_retina_image = copy.copy(img)
-        non_retina_image.thumbnail(non_retina_size, Image.ANTIALIAS)
-        
-        non_retina_io = StringIO.StringIO()
-        non_retina_image.save(non_retina_io, format='JPEG')
-        
-        non_retina_file = InMemoryUploadedFile(non_retina_io, None, filename1x, 'image/jpeg', non_retina_io.len, None)
-        
-        os.rename(path + filename1x, path + filename2x)
-        self.image_file1x.save(filename1x, non_retina_file, save=False)
-                
+
         super(Photo, self).save(*args, **kwargs)
         
          # Automatically adding tags
