@@ -243,30 +243,30 @@ $(document).on('submit', '#post_comments form', function(evt) {
                 var response = $.parseJSON(html);
                 // If no comments added before this
                 if ($('#nocomments').length) {
-                    $('#nocomments').replaceWith($('<dl></dl>').attr('id', 'comments'))
-                    $('#nocommentline').replaceWith($('<div></div>').attr('id', 'comment_line'))
+                    $('#nocomments').replaceWith($('<dl></dl>').attr('id', 'comments'));
+                    $('#nocommentline').replaceWith($('<div></div>').attr('id', 'comment_line'));
                 }
                 
-                $('ul.errorlist').remove()
+                $('ul.errorlist').remove();
                 
-                var name = $('#id_name').val()
-                var comment = $('#id_comment').val()
+                var name = $('#id_name').val();
+                var comment = $('#id_comment').val();
                 
-                $('#id_name').val('')
-                $('#id_comment').val('')
+                $('#id_name').val('');
+                $('#id_comment').val('');
                 
-                comments = $('#comments')
+                comments = $('#comments');
                 
                 var title_elem = $('<dt></dt>').css('display', 'none')
                               .append($('<h3></h3>').text(name))
                               .append(response['pub_date'])
                               .appendTo(comments)
-                              .fadeIn()
+                              .fadeIn();
                 
                 var comment_elem = $('<dd></dd>').css('display', 'none')
                               .append($('<p></p>').text(comment))
                               .appendTo(comments)
-                              .fadeIn()    
+                              .fadeIn();   
             }
             catch(e) {
                 form.replaceWith(html);
