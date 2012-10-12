@@ -29,6 +29,16 @@ class Post(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('photos.views.photo', [str(self.id)])
+    
+    def is_published(self):
+        return self.pub_date <= datetime.date.today()
+    is_published.boolean = True
+    is_published.short_description = "Is published?"
+    
+    def admin_thumbnail(self):
+        return '<img src="%s"/>' % self.photo.image_thumb.url
+    admin_thumbnail.allow_tags = True
+    admin_thumbnail.short_description = 'Thumbnail'
         
     def __unicode__(self):
         return self.title
