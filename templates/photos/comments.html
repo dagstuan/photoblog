@@ -7,7 +7,7 @@
 {% if comment_count > 0 %}
 {% render_comment_list for post %}
 {% else %}
-<p>No comments yet..</p><br />
+<p id="nocomments">No comments yet..</p><br id="nocommentline" />
 {% endif %}
 
 {% if comment_count > 0 %}
