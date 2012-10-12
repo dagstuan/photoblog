@@ -164,9 +164,10 @@ body {
 
 .browse_thumb {
     display: inline-block;
-    width: 134px;
-    height: 134px;
+    width: 133px;
+    height: 133px;
     background: #2B2B2B;
+    border: 1px solid #353535;
 }
 
 #content #browse_menu {
