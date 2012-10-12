@@ -16,6 +16,7 @@
 		{% endif %}
     {% endif %}
   {% endfor %}
+  <input type="hidden" name="next" value="{{ post.get_absolute_url }}comments#comments" />
   <p class="submit">
     <input type="submit" name="post" class="submit-post" value="{% trans "Post" %}" />
   </p>
