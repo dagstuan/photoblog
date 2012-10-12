@@ -365,6 +365,15 @@ body {
     margin-left: 5px;
 }
 
+#post_comments form p {
+    margin-bottom: 5px;
+}
+
+#post_comments .errorlist {
+    list-style-type: none;
+    color: #990000;
+}
+
 #footer {
     color: #333;
     position: absolute;

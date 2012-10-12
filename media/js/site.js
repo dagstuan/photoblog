@@ -226,6 +226,59 @@ var fadeInPhoto = function(evt) {
     $(evt.currentTarget).fadeIn();
 }
 
+$(document).on('submit', '#post_comments form', function(evt) {
+    evt.preventDefault();
+
+    form = $('#post_comments form');
+    
+    $.ajax({
+        type: "POST",
+        data: form.serialize(),
+        url: form.attr('action'),
+        cache: false,
+        dataType: "html",
+        success: function(html, textStatus) {
+            // if JSON is returned, posting went well.
+            try {
+                var response = $.parseJSON(html);
+                // If no comments added before this
+                if ($('#nocomments').length) {
+                    $('#nocomments').replaceWith($('<dl></dl>').attr('id', 'comments'))
+                    $('#nocommentline').replaceWith($('<div></div>').attr('id', 'comment_line'))
+                }
+                
+                $('ul.errorlist').remove()
+                
+                var name = $('#id_name').val()
+                var comment = $('#id_comment').val()
+                
+                $('#id_name').val('')
+                $('#id_comment').val('')
+                
+                comments = $('#comments')
+                
+                var title_elem = $('<dt></dt>').css('display', 'none')
+                              .append($('<h3></h3>').text(name))
+                              .append(response['pub_date'])
+                              .appendTo(comments)
+                              .fadeIn()
+                
+                var comment_elem = $('<dd></dd>').css('display', 'none')
+                              .append($('<p></p>').text(comment))
+                              .appendTo(comments)
+                              .fadeIn()    
+            }
+            catch(e) {
+                form.replaceWith(html);
+            }
+        },
+        error: function() {
+            // TODO: fix this to something more sensible.
+            console.log("Error sending the comment!");
+        },
+    });
+})
+
 $(document).on('click', '#prevlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
@@ -274,24 +327,5 @@ $(document).on('click', '#show_comments_link', function(evt) {
                     post_comments.fadeIn();
                     
                     scrollViewTo(post_comments, 1000);
-                    
-                    form = $('#post_comments form');
-                    
-                    form.submit(function(evt) {
-                        evt.preventDefault();
-                        
-                        $.ajax({
-                            type: "POST",
-                            data: form.serialize(),
-                            url: form.attr('action'),
-                            success: function(ret) {
-                                console.log(ret);
-                            },
-                            error: function() {
-                                console.log("errorrr!");
-                            },
-                        });
-                    })
                 });
-                      
 });
