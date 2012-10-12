@@ -1,6 +1,25 @@
 // Makes sure the user cant spam the navigation buttons without animations finishing.
 var ready = false;
 
+// Options for spinner
+var opts = {
+  lines: 13, // The number of lines to draw
+  length: 7, // The length of each line
+  width: 4, // The line thickness
+  radius: 10, // The radius of the inner circle
+  corners: 1, // Corner roundness (0..1)
+  rotate: 0, // The rotation offset
+  color: '#FFF', // #rgb or #rrggbb
+  speed: 1, // Rounds per second
+  trail: 60, // Afterglow percentage
+  shadow: false, // Whether to render a shadow
+  hwaccel: false, // Whether to use hardware acceleration
+  className: 'spinner', // The CSS class to assign to the spinner
+  zIndex: 2e9, // The z-index (defaults to 2000000000)
+  top: 'auto', // Top position relative to parent in px
+  left: 'auto' // Left position relative to parent in px
+}
+
 $(document).ready(function() {
     current_photo = $('#current_photo');
     
@@ -34,6 +53,11 @@ $(document).ready(function() {
         });
     }
     else if($('#browse_grid').length > 0) {
+        $('.browse_thumb').each(function() {
+            var spinner = new Spinner(opts).spin(this);
+        })
+        
+        
         $('#browse_grid img').css('display', 'none')
                              .one('load', fadeInPhoto)
                              .each(function() {
@@ -60,24 +84,6 @@ $(document).keydown(function(e) {
         $('#nextlink').trigger('click');
     }
 });
-
-var opts = {
-  lines: 13, // The number of lines to draw
-  length: 7, // The length of each line
-  width: 4, // The line thickness
-  radius: 10, // The radius of the inner circle
-  corners: 1, // Corner roundness (0..1)
-  rotate: 0, // The rotation offset
-  color: '#FFF', // #rgb or #rrggbb
-  speed: 1, // Rounds per second
-  trail: 60, // Afterglow percentage
-  shadow: false, // Whether to render a shadow
-  hwaccel: false, // Whether to use hardware acceleration
-  className: 'spinner', // The CSS class to assign to the spinner
-  zIndex: 2e9, // The z-index (defaults to 2000000000)
-  top: 'auto', // Top position relative to parent in px
-  left: 'auto' // Left position relative to parent in px
-}
 
 var displayLoading = function(fade) {
     var background = $('<div></div>').attr('class', 'loadingMessage')
@@ -223,7 +229,14 @@ var scrollViewTo = function(element, duration, callback) {
 }
 
 var fadeInPhoto = function(evt) {
-    $(evt.currentTarget).fadeIn();
+    // TODO: this is kindof stupid, since this function is general.
+    var spinner = $(evt.currentTarget).parent().parent().find('.spinner');
+    
+    spinner.animate({ opacity: 0 }, { duration: 200, queue: false, complete: function() {
+        spinner.remove();
+    }});
+    
+    $(evt.currentTarget).fadeIn();    
 }
 
 $(document).on('submit', '#post_comments form', function(evt) {
