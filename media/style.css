@@ -158,14 +158,16 @@ body {
 }
 
 #browse_grid img {
+    border: none;
     width: 122px;
     height: 122px;
+    margin-bottom: 3px;
 }
 
 .browse_thumb {
     display: inline-block;
-    width: 133px;
-    height: 133px;
+    width: 132px;
+    height: 132px;
     background: #2B2B2B;
     border: 1px solid #353535;
 }
