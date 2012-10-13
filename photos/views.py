@@ -111,7 +111,7 @@ def browse(request, year_id=None, tag_name=None):
         posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag)]
     
     years = [date.year for date in Post.objects.filter(pub_date__lte=datetime.date.today()).dates('pub_date', 'year', order='DESC')]
-    
+
     # TODO: This can probably be solved more cleanly. fix.
     tag_set = set()
     
