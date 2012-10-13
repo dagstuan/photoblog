@@ -19,6 +19,8 @@ class PostAdmin(admin.ModelAdmin):
     
     list_display = ('title', 'comment', 'admin_thumbnail', 'is_published')
     
+    list_filter = ('pub_date',)
+    
     def get_actions(self, request):
         actions = super(PostAdmin, self).get_actions(request)
         del actions['delete_selected']

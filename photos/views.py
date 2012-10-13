@@ -102,16 +102,30 @@ def photo_with_comments(request, photo_id):
 def browse(request, year_id=None, tag_name=None):
     if not tag_name:
         if not year_id:
-            posts = Post.objects.all()
+            posts = Post.objects.filter(pub_date__lte=datetime.date.today())
         else:
-            posts = get_list_or_404(Post, pub_date__year=year_id)
+            posts = Post.objects.filter(pub_date__lte=datetime.date.today()).filter(pub_date__year=year_id)
     # Tag has been supplied, get by tag instead
     else:
         tag = Tag.objects.get(name=tag_name)
         posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag)]
     
     years = [date.year for date in Post.objects.filter(pub_date__lte=datetime.date.today()).dates('pub_date', 'year', order='DESC')]
-    tags = [tag.name for tag in Tag.objects.all().order_by('name')]
+    
+    # TODO: This can probably be solved more cleanly. fix.
+    tag_set = set()
+    
+    for post in Post.objects.filter(pub_date__lte=datetime.date.today()):
+        tag_names = [i.name for i in Tag.objects.get_for_object(post.photo)]
+        
+        for name in tag_names:
+            tag_set.add(name)
+    
+    tags = []
+    for name in tag_set:
+        tags.append(name)
+        
+    tags.sort()
     
     return render_to_response('photos/browse.html', {'posts': posts, 'years': years, 'tags': tags})
 
