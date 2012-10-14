@@ -117,7 +117,7 @@ def browse(request, year_id=None, tag_name=None):
     # Tag has been supplied, get by tag instead
     elif tag_name:
         tag = Tag.objects.get(name=tag_name)
-        posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag)]
+        posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag).filter(post__pub_date__lte=datetime.date.today())]
     
     return render_to_response('photos/browse.html', {'posts': posts, 'years': years, 'tags': tags})
 
