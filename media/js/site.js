@@ -152,8 +152,6 @@ var replacePhoto = function(newContent, callback) {
         $('#post_comments').fadeOut();
     });
     
-    $('#bottom').fadeOut();
-        
     var oldPhoto = $('#current_photo_wrap');
     var newPhoto = $('#current_photo_wrap').clone().appendTo('#content_wrap');
 
