@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     url(r'^post_ajax/$', 'photos.views.post_ajax'),
     url(r'^post_ajax/(?P<post_id>\d+)/$', 'photos.views.post_ajax'),
     url(r'^(?P<post_id>\d+)/comments$', 'photos.views.post_with_comments'),
-    url(r'^get_comments/(?P<photo_id>\d+)/$', 'photos.views.get_comments'),
+    url(r'^get_comments/(?P<post_id>\d+)/$', 'photos.views.get_comments'),
     # url(r'^photoblog/', include('photoblog.foo.urls')),
     
     url(r'^comments/', include('django.contrib.comments.urls')),
