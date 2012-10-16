@@ -31,7 +31,9 @@ $(document).ready(function() {
             if (State.data.url !== undefined) {                
                 ajax_url += State.data.url;
             }
-                    
+            
+            $.ajaxSetup({cache: false});
+                 
             $.getJSON(ajax_url, {format: 'json'}, function(res) {
                 replacePhoto(res);
             });
