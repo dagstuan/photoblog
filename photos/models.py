@@ -28,7 +28,7 @@ class Post(models.Model):
     
     @models.permalink
     def get_absolute_url(self):
-        return ('photos.views.photo', [str(self.id)])
+        return ('photos.views.post', [str(self.id)])
     
     def is_published(self):
         return self.pub_date <= datetime.date.today()

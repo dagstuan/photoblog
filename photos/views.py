@@ -13,20 +13,51 @@ import datetime
 import pdb
 
 def index(request):
-    posts = Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')[0:2]
+    post = _get_post()
         
-    c = Context({
-        'post': posts[0],
-    })
+    prev_id, next_id = _get_prev_and_next_post(post)
     
-    if len(posts) > 1:
-        c['prev_id'] = posts[1].id
+    ret_dict = {}
     
+    if not prev_id is None:
+        ret_dict['prev_id'] = prev_id
+
+    ret_dict['post'] = post
+    
+    c = Context(ret_dict)
+
     return render_to_response('photos/show_photo.html', c)
     
-def photo(request, photo_id, comments=False):
-    post = get_object_or_404(Post, id=photo_id)
+def post(request, post_id, comments=False):
+    post = _get_post(post_id)
+	
+    ret_dict = {}	
+    
+    prev_id, next_id = _get_prev_and_next_post(post)
+    
+    if not prev_id is None:
+        ret_dict['prev_id'] = prev_id
+    if not next_id is None:
+        ret_dict['next_id'] = next_id
+        
+    if comments:
+        ret_dict['post_comments'] = True
+    else:
+        ret_dict['post_comments'] = False
+    
+    ret_dict['post'] = post
+    
+    csrfContext = RequestContext(request, ret_dict)
+    
+    return render_to_response('photos/show_photo.html', csrfContext)
+        
+def _get_post(post_id=None):
+    if post_id:
+        return get_object_or_404(Post, id=post_id)
+    else:
+        return Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')[0]
 
+def _get_prev_and_next_post(post):
     prev_id = None
     next_id = None
     
@@ -48,60 +79,60 @@ def photo(request, photo_id, comments=False):
                               .id
     except:
         pass
-	
-    retDict = {}	
+    
+    return prev_id, next_id
+        
+def post_ajax(request, post_id=None):
+    post = _get_post(post_id)
+    
+    prev_id, next_id = _get_prev_and_next_post(post)
+    
+    ret_dict = _generate_post_ajax(post)
     
     if not prev_id is None:
-        retDict['prev_id'] = prev_id
+        ret_dict['prev_id'] = prev_id
     if not next_id is None:
-        retDict['next_id'] = next_id
-        
-    if comments:
-        retDict['post_comments'] = True
-    else:
-        retDict['post_comments'] = False
+        ret_dict['next_id'] = next_id
     
-    if request.is_ajax():
-        retDict['post_id'] = post.id
-        retDict['title'] = post.title
-        retDict['comment'] = post.comment
-        retDict['photo_url'] = post.photo.image_file1x.url
-        retDict['permalink'] = post.get_absolute_url()
-        retDict['pub_date'] = dateformat.format(post.pub_date, "jS") + " of " + dateformat.format(post.pub_date, "F Y")
+    response = HttpResponse(simplejson.dumps(ret_dict), content_type = 'application/json; charset=utf8')
+    response['Cache-Control'] = 'no-cache'
+    
+    return response
         
-        retDict['comment_count'] = Comment.objects.filter(object_pk=post.id).count()
+def _generate_post_ajax(post):
+    post_dict = {}
+    
+    post_dict['post_id'] = post.id
+    post_dict['title'] = post.title
+    post_dict['comment'] = post.comment
+    post_dict['photo_url'] = post.photo.image_file1x.url
+    post_dict['permalink'] = post.get_absolute_url()
+    post_dict['pub_date'] = dateformat.format(post.pub_date, "jS") + " of " + dateformat.format(post.pub_date, "F Y")
+    post_dict['comment_count'] = Comment.objects.filter(object_pk=post.id).count()
+    post_dict['exif'] = {
+        'shutter_speed': post.photo.exif_shutter_speed,
+        'aperture': post.photo.exif_aperture,
+        'focal_length': post.photo.exif_focal_length,
+        'iso': post.photo.exif_iso,
+        'width': post.photo.image_file1x.width,
+        'height': post.photo.image_file1x.height,
+    }
+    
+    return post_dict
         
-        retDict['exif'] = {
-            'shutter_speed': post.photo.exif_shutter_speed,
-            'aperture': post.photo.exif_aperture,
-            'focal_length': post.photo.exif_focal_length,
-            'iso': post.photo.exif_iso,
-            'width': post.photo.image_file1x.width,
-            'height': post.photo.image_file1x.height,
-        }
-        
-        return HttpResponse(simplejson.dumps(retDict), content_type = 'application/json; charset=utf8')
-        
-    else:
-        retDict['post'] = post
-        
-        csrfContext = RequestContext(request, retDict)
-        
-        return render_to_response('photos/show_photo.html', csrfContext)
-        
-def get_comments(request, photo_id):
-    post = get_object_or_404(Post, id=photo_id)
+def get_comments(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
     
     csrfContext = RequestContext(request, { 'post': post })
     
     return render_to_response('photos/comments.html', csrfContext)
 
-def photo_with_comments(request, photo_id):
-    return photo(request, photo_id, comments=True)
+def post_with_comments(request, post_id):
+    return photo(request, post_id, comments=True)
 
 def browse(request, year_id=None, tag_name=None):
     # Getting all published posts.
-    posts = Post.objects.filter(pub_date__lte=datetime.date.today())
+    posts = Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')
     
     # Getting tags first, before filtering the posts further.
     tags = [tag.name for tag in Tag.objects.usage_for_model(Photo, filters=dict(post__pub_date__lte=datetime.date.today()))]

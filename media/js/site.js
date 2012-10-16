@@ -1,5 +1,6 @@
 // Makes sure the user cant spam the navigation buttons without animations finishing.
 var ready = false;
+var History = window.History;
 
 // Options for spinner
 var opts = {
@@ -20,7 +21,23 @@ var opts = {
   left: 'auto' // Left position relative to parent in px
 }
 
+
+
 $(document).ready(function() {
+    History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
+            var State = History.getState(); // Note: We are using History.getState() instead of event.state
+            ajax_url = '/post_ajax';
+            
+            if (State.data.url !== undefined) {                
+                ajax_url += State.data.url;
+            }
+                    
+            $.getJSON(ajax_url, {format: 'json'}, function(res) {
+                replacePhoto(res);
+            });
+            
+        });
+    
     current_photo = $('#current_photo');
     
     if (current_photo.length > 0) {
@@ -308,9 +325,7 @@ $(document).on('click', '#prevlink', function(evt) {
 	ready = false;
 	url = $('#prevlink').attr('href');
 	
-    $.get(url, function(res) {
-		replacePhoto(res);
-	});
+	History.pushState({url:url}, null, url + '/')
 });
 
 $(document).on('click', '#nextlink', function(evt) {
@@ -324,9 +339,7 @@ $(document).on('click', '#nextlink', function(evt) {
 	ready = false;
 	url = $('#nextlink').attr('href');
 	
-    $.get(url, function(res) {
-		replacePhoto(res);
-	});
+	History.pushState({url:url}, null, url + '/');
 });
 
 $(document).on('click', '#show_comments_link', function(evt) {
