@@ -128,7 +128,7 @@ def get_comments(request, post_id):
     return render_to_response('photos/comments.html', csrfContext)
 
 def post_with_comments(request, post_id):
-    return photo(request, post_id, comments=True)
+    return post(request, post_id, comments=True)
 
 def browse(request, year_id=None, tag_name=None):
     # Getting all published posts.
