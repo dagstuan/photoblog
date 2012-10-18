@@ -1,0 +1,22 @@
+<div id="content" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;"> <!-- START content -->
+	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;" alt="{{ post.title }}"/>
+	
+	<div id='arrows'>
+		{% if prev_id %}
+		<a id="prevlink" href="/{{ prev_id }}"></a>
+		{% endif %}
+
+		{% if next_id %}
+		<a id="nextlink" href="/{{ next_id }}"></a>
+		{% endif %}
+	</div>
+
+</div> <!-- END content -->
+	
+{% include "photos/bottom.html" %}
+
+<div id="post_comments">
+	{% if post_comments %}
+	{% include "photos/comments.html" %}
+	{% endif %}
+</div>

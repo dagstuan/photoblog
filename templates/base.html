@@ -30,26 +30,18 @@
 			<a href="/"><span id="logo"></span></a>
 			<div id="menu"> <!-- START menu -->
 				<ul>
-					<li><a href="/">INDEX</a></li>
-					<li><a href="/browse">BROWSE</a></li>
-					<li><a href="/about">ABOUT</a></li>					
+					<li><a id="indexbutton" href="/">INDEX</a></li>
+					<li><a id="browsebutton" href="/browse">BROWSE</a></li>
+					<li><a id="aboutbutton" href="/about">ABOUT</a></li>					
 				</ul>
 			</div> <!-- END menu -->
 			<span class="hr"></span>
 		</div> <!-- END top -->
 		
 		<div id="content_wrap">
-			<div id="current_photo_wrap">
-				{% block content %}{% endblock %}
-				<div id="bottom"> <!-- START bottom -->
-					{% block bottom %}{% endblock %}
-				</div> <!-- END bottom -->
-			</div>
+			{% block content %}{% endblock %}
 		</div>
-		
-		<div id="post_comments">
-		{% block post_comments %}{% endblock %}
-		</div>
+
 		<div id="footer"> <!-- START footer -->
 			{% block footer %}
 			<div id="copyright">Copyright &copy; 2012 - Dag Stuan</div>

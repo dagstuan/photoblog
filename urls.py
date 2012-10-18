@@ -7,17 +7,14 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', 'photos.views.index', name='home'),
+    url(r'^$', 'photos.views.post'),
+    url(r'^(?P<post_id>\d+)/$', 'photos.views.post'),
+    url(r'^(?P<post_id>\d+)/comments/$', 'photos.views.post_with_comments'),
+    url(r'^get_comments/(?P<post_id>\d+)/$', 'photos.views.get_comments'),
     url(r'^about/$', 'photos.views.about'),
     url(r'^browse/$', 'photos.views.browse'),
     url(r'^browse/(?P<year_id>(19|20)\d\d)/$', 'photos.views.browse'),
     url(r'^browse/(?P<tag_name>\w+)/$', 'photos.views.browse'),
-    url(r'^(?P<post_id>\d+)/$', 'photos.views.post'),
-    url(r'^post_ajax/$', 'photos.views.post_ajax'),
-    url(r'^post_ajax/(?P<post_id>\d+)/$', 'photos.views.post_ajax'),
-    url(r'^(?P<post_id>\d+)/comments$', 'photos.views.post_with_comments'),
-    url(r'^get_comments/(?P<post_id>\d+)/$', 'photos.views.get_comments'),
-    # url(r'^photoblog/', include('photoblog.foo.urls')),
     
     url(r'^comments/', include('django.contrib.comments.urls')),
 

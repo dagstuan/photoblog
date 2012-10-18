@@ -3,54 +3,7 @@
 {% block title %}{{ post.title }} | Dag Stuan{% endblock %}
 
 {% block content %}
-<div id="content" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;"> <!-- START content -->
-	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;" alt="{{ post.title }}"/>
-	
-	<div id='arrows'>
-		{% if prev_id %}
-		<a id="prevlink" href="/{{ prev_id }}"></a>
-		{% endif %}
-
-		{% if next_id %}
-		<a id="nextlink" href="/{{ next_id }}"></a>
-		{% endif %}
-	</div>
-</div> <!-- END content -->
-{% endblock %}
-
-{% block bottom %}
-{% load comments %}
-<div id="title">
-{% if post.title %}
-<span class="head">{{ post.title }}</span> 
-{% endif %}
-
-{% if post.comment %}
-<span class="comment">{{ post.comment }}</span>
-{% endif %}
-</div>
-<div id="information">
-	<div id="meta">
-		<span class="header">Published</span> {{ post.pub_date|date:"jS" }} of 
-		{{post.pub_date|date:"F Y"}}
-	</div>
-	<div id="exif">
-		<span class="header">Exif</span> <span id="photo_focal_length">{{ post.photo.exif_focal_length }}</span>, <span id="photo_shutter_speed">{{ post.photo.exif_shutter_speed }}</span>, <span id="photo_aperture">{{ post.photo.exif_aperture}}</span>, <span id="photo_iso">{{ post.photo.exif_iso }}</span>
-	</div>
-	<div id="permalink">
-		<a href="{{ post.get_absolute_url }}">permalink</a>
-	</div>
-	<div id="comments_count">
-		{% get_comment_count for post as comment_count %}
-		<a id="show_comments_link" href="/{{ post.id }}/comments">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
-	</div>
-</div>
-{% endblock %}
-
-{% block post_comments %}
-	{% if post_comments %}
-	{% include "photos/comments.html" %}
-	{% endif %}
+{% include "photos/photo.html" %}
 {% endblock %}
 
 {% block footer %}

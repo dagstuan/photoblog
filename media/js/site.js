@@ -22,16 +22,10 @@ var opts = {
 }
 
 $(document).ready(function() {
-    
-    
     History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
         var State = History.getState(); // Note: We are using History.getState() instead of event.state
         
-        ajax_url = '/post_ajax';
-        
         if (State.data.url !== undefined) {                
-            ajax_url += State.data.url;
-            
             _gaq.push(['_trackPageview', State.data.url]);
         }
         else {
@@ -39,11 +33,11 @@ $(document).ready(function() {
         }
         
         $.ajaxSetup({cache: false});
-             
-        $.getJSON(ajax_url, {format: 'json'}, function(res) {
-            replacePhoto(res);
-        });
         
+        var func = State.data['call_func'];
+        var url = State.data['url'];
+
+        getNewContent(func, url);
     });
     
     current_photo = $('#current_photo');
@@ -151,97 +145,84 @@ var hideLoading = function() {
     }});
 }
 
-var replacePhoto = function(newContent, callback) {    
-    document.title = newContent['title'] + ' | Dag Stuan';
-    
-    scrollViewTo($('body'), 500, function() {
-        $('#post_comments').fadeOut();
-    });
-    
-    var oldPhoto = $('#current_photo_wrap');
-    var newPhoto = $('#current_photo_wrap').clone().appendTo('#content_wrap');
+var getNewContent = function(func, url) {
+    switch(func) {
+        case 'photo':
+            replacePhoto(url);
+            break;
+        default:
+            loadNewContent(url);
+    }
+}
 
-    newPhoto.css('display', 'none')
-            .css('width', '100%')
-            .css('top', '0')
-            .css('left', '0');
+var loadNewContent = function(url) {
+    scrollViewTo($('body'), 500);
     
-    newImg = newPhoto.find('#current_photo');
-    
-    newImg.attr('src', newContent['photo_url'])
-          .attr('alt', newContent['title'])
-          .retina();
-    
-    newPhoto.find('#title .head')
-            .text(newContent['title']);
-    
-    newPhoto.find('#title .comment')
-            .text(newContent['comment']);
-    
-    newPhoto.find('#meta')
-            .empty()
-            .append($('<span></span>').attr('class', 'header').text('Published '))
-            .append(newContent['pub_date']);
-    
-    newPhoto.find('#photo_focal_length')
-            .text(newContent['exif']['focal_length']);
-    
-    newPhoto.find('#photo_shutter_speed')
-            .text(newContent['exif']['shutter_speed']);
-    
-    newPhoto.find('#photo_aperture')
-            .text(newContent['exif']['aperture']);
-    
-    newPhoto.find('#photo_iso')
-            .text(newContent['exif']['iso']);
+    var content = $('#content_wrap');
+
+    $.get(url, function(res) {
+        document.title = res['title'] + ' | Dag Stuan';
+        
+        content.fadeOut(200, function() {
+            content.html(res['html']);
             
-    newPhoto.find('#permalink a')
-            .attr('href', newContent['permalink']);
+            content.fadeIn(200);
+            
+            // TODO: make this prettier..
+            if (url == '/browse') {
+                
+                opts['top'] = '44px';
+                opts['left'] = '43px';
+
+                $('.browse_thumb').each(function() {
+                    var spinner = new Spinner(opts).spin(this);
+                });
+
+                opts['top'] = 'auto';
+                opts['left'] = 'auto';
+
+                $('#browse_grid img').css('display', 'none')
+                                     .one('load', fadeInPhoto)
+                                     .each(function() {
+                                         if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                                     });
+            }
+        });
+    })
+}
+
+var replacePhoto = function(url) {
+    displayLoading(true);
     
-    newPhoto.find('#comments_count a')
-            .attr('href', '/'+newContent['post_id']+'/comments')
-            .text(newContent['comment_count'] + ' ' + ((newContent['comment_count'] == 1) ? 'comment' : 'comments'));
+    scrollViewTo($('body'), 500);
     
-    var comments = $('#post_comments');
+    var content = $('#content_wrap');
     
-    fixNavigationLinks(newPhoto.find('#arrows'), newContent);
-    
-    newPhoto.find('#content').css('width', newContent['exif']['width'])
-                             .css('height', newContent['exif']['height']);
-                             
-    comments.fadeOut(200, function() {
-        comments.empty();
-    });
-    
-    newImg.one('load', function() {
+    $.get(url, function(res) {
+        document.title = res['title'] + ' | Dag Stuan';
+
         hideLoading();
-        oldPhoto.fadeOut(200, function() {
-            oldPhoto.remove();
-            
-            newPhoto.fadeIn(200, function() {
+        content.fadeOut(200, function() {
+            content.html(res['html']);
+
+            content.fadeIn(200, function() {
                 ready = true;
             });
         });
-    })
-    .each(function() {
-         if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
     });
 }
 
-var fixNavigationLinks = function(arrows, newContent) {
-    arrows.empty();
+var showComments = function() {
+    var post_comments = $('#post_comments');
 
-    if(typeof newContent['prev_id'] != 'undefined') {
-        arrows.append($('<a></a>').attr('id', 'prevlink')
-                                  .attr('href', '/'+newContent['prev_id'])
-               );
-    };
-    
-    if(typeof newContent['next_id'] != 'undefined') {
-        arrows.append($('<a></a>').attr('id', 'nextlink')
-                          .attr('href', '/'+newContent['next_id'])
-               );
-    };
+    var id = $('#show_comments_link').attr('href').split('/')[1];
+
+    post_comments.css('display', 'none')
+                 .load('/get_comments/' + id + '/', function() {
+                     post_comments.fadeIn();
+             
+                     scrollViewTo(post_comments, 1000);
+                 });
 }
 
 var scrollViewTo = function(element, duration, callback) {
@@ -259,7 +240,7 @@ var fadeInPhoto = function(evt) {
         spinner.remove();
     }});
     
-    $(evt.currentTarget).fadeIn();    
+    $(evt.currentTarget).fadeIn();
 }
 
 $(document).on('submit', '#post_comments form', function(evt) {
@@ -277,6 +258,7 @@ $(document).on('submit', '#post_comments form', function(evt) {
             // if JSON is returned, posting went well.
             try {
                 var response = $.parseJSON(html);
+                
                 // If no comments added before this
                 if ($('#nocomments').length) {
                     $('#nocomments').replaceWith($('<dl></dl>').attr('id', 'comments'));
@@ -325,13 +307,11 @@ $(document).on('click', '#prevlink', function(evt) {
 	if(!ready) {
 	    return false;
 	}
-	
-	displayLoading(true);
-	
+
 	ready = false;
 	url = $('#prevlink').attr('href');
 	
-	History.pushState({url:url}, null, url + '/')
+	History.pushState({url:url, call_func:'photo'}, null, url + '/')
 });
 
 $(document).on('click', '#nextlink', function(evt) {
@@ -340,12 +320,10 @@ $(document).on('click', '#nextlink', function(evt) {
 	    return false;
 	}
 	
-	displayLoading(true);
-	
 	ready = false;
 	url = $('#nextlink').attr('href');
 	
-	History.pushState({url:url}, null, url + '/');
+	History.pushState({url:url, call_func:'photo'}, null, url + '/');
 });
 
 $(document).on('click', '#show_comments_link', function(evt) {
@@ -355,14 +333,20 @@ $(document).on('click', '#show_comments_link', function(evt) {
        return;
    }
    
-   var id = $('#show_comments_link').attr('href').split('/')[1];
+   showComments();
    
-   var post_comments = $('#post_comments');
-   
-   post_comments.css('display', 'none')
-                .load('/get_comments/' + id + '/', function() {
-                    post_comments.fadeIn();
-                    
-                    scrollViewTo(post_comments, 1000);
-                });
+   //History.pushState({url:url, call_func:'comments', only_comments:true}, null, url + '/');
+});
+
+$(document).on('click', '#top a', function(evt) {
+    evt.preventDefault();
+    var url = $(this).attr('href');
+    
+    hist_dict = {url:url};
+    
+    if (url === '/') {
+        hist_dict['call_func'] = 'photo';
+    }
+    
+    History.pushState(hist_dict, null, url + '/');
 });
