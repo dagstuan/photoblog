@@ -25,8 +25,11 @@ $(document).ready(function() {
     History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
         var State = History.getState(); // Note: We are using History.getState() instead of event.state
         
-        if (State.data.url !== undefined) {                
-            _gaq.push(['_trackPageview', State.data.url]);
+        var url = State.data['url'];
+        var func = State.data['call_func'];
+        
+        if (url !== undefined) {                
+            _gaq.push(['_trackPageview', url]);
         }
         else {
             _gaq.push(['_trackPageview', '/']);
@@ -34,9 +37,6 @@ $(document).ready(function() {
         
         $.ajaxSetup({cache: false});
         
-        var func = State.data['call_func'];
-        var url = State.data['url'];
-
         getNewContent(func, url);
     });
     
@@ -188,7 +188,7 @@ var loadNewContent = function(url) {
                                      });
             }
         });
-    })
+    });
 }
 
 var replacePhoto = function(url) {
@@ -214,8 +214,6 @@ var replacePhoto = function(url) {
         .each(function() {
              if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
          });
-        
-        
     });
 }
 
@@ -309,28 +307,16 @@ $(document).on('submit', '#post_comments form', function(evt) {
     });
 })
 
-$(document).on('click', '#prevlink', function(evt) {
+$(document).on('click', '#prevlink, #nextlink', function(evt) {
 	evt.preventDefault();
 	if(!ready) {
 	    return false;
 	}
 
 	ready = false;
-	url = $('#prevlink').attr('href');
-	
-	History.pushState({url:url, call_func:'photo'}, null, url + '/')
-});
+	url = $(this).attr('href');
 
-$(document).on('click', '#nextlink', function(evt) {
-	evt.preventDefault();
-	if(!ready) {
-	    return false;
-	}
-	
-	ready = false;
-	url = $('#nextlink').attr('href');
-	
-	History.pushState({url:url, call_func:'photo'}, null, url + '/');
+	History.pushState({url:url, call_func:'photo'}, null, url)
 });
 
 $(document).on('click', '#show_comments_link', function(evt) {
@@ -341,8 +327,6 @@ $(document).on('click', '#show_comments_link', function(evt) {
    }
    
    showComments();
-   
-   //History.pushState({url:url, call_func:'comments', only_comments:true}, null, url + '/');
 });
 
 $(document).on('click', '#top a', function(evt) {
@@ -357,3 +341,11 @@ $(document).on('click', '#top a', function(evt) {
     
     History.pushState(hist_dict, null, url + '/');
 });
+
+$(document).on('click', '#browse_grid a', function(evt) {
+    evt.preventDefault();
+    
+    url = $(this).attr('href');
+
+	History.pushState({url:url, call_func:'photo'}, null, url)
+})
