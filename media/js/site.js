@@ -200,15 +200,22 @@ var replacePhoto = function(url) {
     
     $.get(url, function(res) {
         document.title = res['title'] + ' | Dag Stuan';
+        
+        $(res['html']).filter('#content').find('img').one('load', function() {
+            hideLoading();
+            content.fadeOut(200, function() {
+                content.html(res['html']);
 
-        hideLoading();
-        content.fadeOut(200, function() {
-            content.html(res['html']);
-
-            content.fadeIn(200, function() {
-                ready = true;
+                content.fadeIn(200, function() {
+                    ready = true;
+                });
             });
-        });
+        })
+        .each(function() {
+             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+         });
+        
+        
     });
 }
 
