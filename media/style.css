@@ -24,6 +24,10 @@ body {
     font: normal 12px Helvetica,Verdana,Arial,sans-serif;
 }
 
+.clearboth {
+    clear: both;
+}
+
 #wrap {
     position: relative;
     margin: 0 auto;
@@ -122,10 +126,6 @@ body {
 }
 
 #content_wrap {
-    position: relative;
-}
-
-#content_wrap #current_photo_wrap {
     position: relative;
     width: 100%;
     top: 0;

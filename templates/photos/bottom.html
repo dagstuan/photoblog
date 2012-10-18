@@ -1,0 +1,29 @@
+{% load comments %}
+
+<div id="bottom"> <!-- START bottom -->
+	<div id="title">
+	{% if post.title %}
+	<span class="head">{{ post.title }}</span> 
+	{% endif %}
+
+	{% if post.comment %}
+	<span class="comment">{{ post.comment }}</span>
+	{% endif %}
+	</div>
+	<div id="information">
+		<div id="meta">
+			<span class="header">Published</span> {{ post.pub_date|date:"jS" }} of 
+			{{post.pub_date|date:"F Y"}}
+		</div>
+		<div id="exif">
+			<span class="header">Exif</span> <span id="photo_focal_length">{{ post.photo.exif_focal_length }}</span>, <span id="photo_shutter_speed">{{ post.photo.exif_shutter_speed }}</span>, <span id="photo_aperture">{{ post.photo.exif_aperture}}</span>, <span id="photo_iso">{{ post.photo.exif_iso }}</span>
+		</div>
+		<div id="permalink">
+			<a href="{{ post.get_absolute_url }}">permalink</a>
+		</div>
+		<div id="comments_count">
+			{% get_comment_count for post as comment_count %}
+			<a id="show_comments_link" href="/{{ post.id }}/comments">{{ comment_count }} comment{{ comment_count|pluralize }}</a>
+		</div>
+	</div>
+</div> <!-- END bottom -->
