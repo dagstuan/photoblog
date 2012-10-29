@@ -102,8 +102,11 @@ def _get_posts_for_browse_grid(year_id=None, tag_name=None, posts=None):
         posts = posts.filter(pub_date__year=year_id)            
     # Tag has been supplied, get by tag instead
     elif tag_name:
-        tag = Tag.objects.get(name=tag_name)
-        posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag).filter(post__pub_date__lte=datetime.date.today())]
+        try:
+            tag = Tag.objects.get(name=tag_name)
+            posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag).filter(post__pub_date__lte=datetime.date.today())]
+        except:
+            return None
     
     return posts
 
