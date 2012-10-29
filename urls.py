@@ -15,6 +15,8 @@ urlpatterns = patterns('',
     url(r'^browse/$', 'photos.views.browse'),
     url(r'^browse/(?P<year_id>(19|20)\d\d)/$', 'photos.views.browse'),
     url(r'^browse/(?P<tag_name>\w+)/$', 'photos.views.browse'),
+    url(r'^update_browse_grid/(?P<year_id>(19|20)\d\d)/$', 'photos.views.update_browse_grid'),
+    url(r'^update_browse_grid/(?P<tag_name>\w+)/$', 'photos.views.update_browse_grid'),
     
     url(r'^comments/', include('django.contrib.comments.urls')),
 
