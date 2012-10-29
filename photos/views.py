@@ -90,16 +90,11 @@ def _get_prev_and_next_post(post):
     
     return prev_id, next_id
 
-def browse(request, year_id=None, tag_name=None):
-    # Getting all published posts.
-    posts = Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')
-    
-    # Getting tags first, before filtering the posts further.
-    tags = [tag.name for tag in Tag.objects.usage_for_model(Photo, filters=dict(post__pub_date__lte=datetime.date.today()))]
-    tags.sort()    
-    
-    # Getting years
-    years = [date.year for date in posts.dates('pub_date', 'year', order='DESC')]
+def _get_posts_for_browse_grid(year_id=None, tag_name=None, posts=None):
+    # If posts are supplied our task is purely filtering, so
+    # we do not need to fetch the posts.
+    if not posts:
+        posts = Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')
     
     # Getting posts to display. If neither year or tag is supplied,
     # we already have the posts from above
@@ -109,6 +104,22 @@ def browse(request, year_id=None, tag_name=None):
     elif tag_name:
         tag = Tag.objects.get(name=tag_name)
         posts = [photo.post for photo in TaggedItem.objects.get_by_model(Photo, tag).filter(post__pub_date__lte=datetime.date.today())]
+    
+    return posts
+
+def browse(request, year_id=None, tag_name=None):
+    # Getting all published posts.
+    posts = _get_posts_for_browse_grid()
+    
+    # Getting tags first, before filtering the posts further.
+    tags = [tag.name for tag in Tag.objects.usage_for_model(Photo, filters=dict(post__pub_date__lte=datetime.date.today()))]
+    tags.sort()    
+    
+    # Getting years
+    years = [date.year for date in posts.dates('pub_date', 'year', order='DESC')]
+    
+    # Filtering posts further
+    posts = _get_posts_for_browse_grid(year_id, tag_name)
     
     ret_dict = {'posts': posts, 'years': years, 'tags': tags}
     
@@ -126,6 +137,16 @@ def browse(request, year_id=None, tag_name=None):
         return response
     else:
         return render_to_response('photos/browse.html', ret_dict)
+        
+def update_browse_grid(request, year_id=None, tag_name=None):
+    posts = _get_posts_for_browse_grid(year_id, tag_name)
+    
+    template_dict = {'posts': posts}
+
+    response = render_to_response('photos/browse_grid.html', template_dict)
+    response['Cache-Control'] = 'no-cache'
+
+    return response
 
 def about(request):
     if request.is_ajax():

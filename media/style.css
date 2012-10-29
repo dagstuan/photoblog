@@ -216,7 +216,6 @@ body {
     text-align: left;
     padding: 5px;
     min-height: 460px;
-    margin-top: -15px;
     margin-left: 5px;
     margin-right: 5px;
     margin-bottom: 10px;
@@ -231,6 +230,7 @@ body {
     font: normal 2.4em Garamond, GaramondPro;
     margin-top: 8px;
     margin-bottom: 5px;
+    margin-top: -10px;
 }
 
 #about_content {

@@ -1,12 +1,13 @@
 // Makes sure the user cant spam the navigation buttons without animations finishing.
 var ready = false;
 var History = window.History;
+var only_grid = false;
 
 // Options for spinner
 var opts = {
   lines: 13, // The number of lines to draw
   length: 7, // The length of each line
-  width: 4, // The line thickness
+  width: 3, // The line thickness
   radius: 10, // The radius of the inner circle
   corners: 1, // Corner roundness (0..1)
   rotate: 0, // The rotation offset
@@ -22,30 +23,19 @@ var opts = {
 }
 
 $(document).ready(function() {
-    History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
-        var State = History.getState(); // Note: We are using History.getState() instead of event.state
-        
-        var url = State.data['url'];
-        var func = State.data['call_func'];
-        
-        if (url !== undefined) {                
-            _gaq.push(['_trackPageview', url]);
-        }
-        else {
-            _gaq.push(['_trackPageview', '/']);
-        }
-        
-        $.ajaxSetup({cache: false});
-        
-        getNewContent(func, url);
-    });
+    History.Adapter.bind(window,'statechange',historyUpdated);
+    
+    $.ajaxSetup({cache: false});
     
     current_photo = $('#current_photo');
     
     if (current_photo.length > 0) {
         current_photo.retina();
         current_photo.css('display', 'none');
-        displayLoading(false);
+        
+        var content = $('#content');
+        var background = generateLoadingBackground(content)
+        displayLoading(false, content, background);
         
         bottom = $('#bottom');
         arrows = $('#arrows');
@@ -72,16 +62,7 @@ $(document).ready(function() {
         });
     }
     else if($('#browse_grid').length > 0) {
-        $('.browse_thumb').each(function() {
-            var spinner = new Spinner(opts).spin(this);
-        })
-        
-        
-        $('#browse_grid img').css('display', 'none')
-                             .one('load', fadeInPhoto)
-                             .each(function() {
-                                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-                             });
+        setupGridLoading();
     }
     else if($('#about').length > 0) {
         $('#about img').css('display', 'none')
@@ -104,10 +85,26 @@ $(document).keydown(function(e) {
     }
 });
 
-var displayLoading = function(fade) {
+var historyUpdated = function() {
+    var State = History.getState(); // Note: We are using History.getState() instead of event.state
+
+    var url = State.data['url'];
+    var func = State.data['call_func'];
+    
+    if (url !== undefined) {                
+        _gaq.push(['_trackPageview', url]);
+    }
+    else {
+        _gaq.push(['_trackPageview', '/']);
+    }
+    
+    getNewContent(func, url);
+}
+
+var generateLoadingBackground = function(loadingElement) {
     var background = $('<div></div>').attr('class', 'loadingMessage')
-                    .css('width', $('#current_photo').width())
-                    .css('height', $('#current_photo').height())
+                    .css('width', loadingElement.width())
+                    .css('height', loadingElement.height())
                     .css('position', 'absolute')
                     .css('top', '0')
                     .css('left', '0')
@@ -117,18 +114,29 @@ var displayLoading = function(fade) {
                     .css('margin-left', '-5px')
                     .css('opacity', '0.7')
                     .css('display', 'none')
-                    .appendTo('#content');
     
-    var target = document.getElementById('content');
+    return background
+}
+
+var displayLoading = function(fade, element, background) {
+    if (background) {
+        background.appendTo(element);
+    }
+    
+    var target = element[0];
     var spinner = new Spinner(opts).spin(target);
     $('.spinner').css('display', 'none');
     
     if (fade) {
-        background.fadeIn();
+        if (background) {
+            background.fadeIn();
+        }
         $('.spinner').fadeIn();
     }
     else {
-        background.show();
+        if (background) {
+            background.show();
+        }
         $('.spinner').show();
     }
 }
@@ -146,75 +154,164 @@ var hideLoading = function() {
 }
 
 var getNewContent = function(func, url) {
-    switch(func) {
-        case 'photo':
-            replacePhoto(url);
-            break;
-        default:
-            loadNewContent(url);
+    if (func == 'photo') {
+        replacePhoto(url);
+    }
+    else if (func == 'gridupdate' && only_grid == true) {
+        updateGrid(url);
+        only_grid = false;
+    }
+    else {
+        loadNewContent(url);
     }
 }
 
 var loadNewContent = function(url) {
-    scrollViewTo($('body'), 500);
-    
-    var content = $('#content_wrap');
-
-    $.get(url, function(res) {
-        document.title = res['title'] + ' | Dag Stuan';
-        
-        content.fadeOut(200, function() {
-            content.html(res['html']);
-            
-            content.fadeIn(200);
-            
-            // TODO: make this prettier..
-            if (url == '/browse') {
-                
-                opts['top'] = '44px';
-                opts['left'] = '43px';
-
-                $('.browse_thumb').each(function() {
-                    var spinner = new Spinner(opts).spin(this);
-                });
-
-                opts['top'] = 'auto';
-                opts['left'] = 'auto';
-
-                $('#browse_grid img').css('display', 'none')
-                                     .one('load', fadeInPhoto)
-                                     .each(function() {
-                                         if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-                                     });
-            }
-        });
-    });
-}
-
-var replacePhoto = function(url) {
-    displayLoading(true);
-    
-    scrollViewTo($('body'), 500);
-    
     var content = $('#content_wrap');
     
-    $.get(url, function(res) {
-        document.title = res['title'] + ' | Dag Stuan';
-        
-        $(res['html']).filter('#content').find('img').one('load', function() {
-            hideLoading();
+    var spinner_options = {
+        'top': '230px',
+        'left': 'auto',
+        'width': 2,
+        'radius': 13,
+        'speed': 1.6,
+        'color': '#FFF',
+        'lines': 15,
+        'length': 10,
+    };
+    
+    var spinner = new Spinner(spinner_options).spin(content[0]);
+    $('.spinner').css('margin-top', '0')
+                 .css('display', 'none');
+    
+    $('.spinner').fadeIn(200);
+    $('#content').add($('#bottom'))
+                 .add($('#post_comments'))
+                 .add($('#footer'))
+                 .fadeOut(200, function() {
+                     $(this).css('visibility', 'hidden')
+                            .css('display', '');
+                 });
+    
+    var complete = 0;
+    var result = null;
+    
+    var replaceContent = function() {
+        if (complete == 2 && result != null) {
             content.fadeOut(200, function() {
-                content.html(res['html']);
+                document.title = result['title'] + ' | Dag Stuan';
+                content.html(result['html']);
 
+                // TODO: make this prettier..
+                if (url == '/browse') {
+                    setupGridLoading();
+                }
+
+                $('#footer').css('visibility', 'visible')
+                            .css('display', 'none')
+                            .fadeIn(200);
                 content.fadeIn(200, function() {
                     ready = true;
                 });
             });
-        })
-        .each(function() {
-             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-         });
+        }
+    }
+    
+    scrollViewTo($('body'), 500, function() {
+        complete++;
+        replaceContent();
     });
+
+    $.get(url, function(res) {
+        result = res;
+        complete++;
+        replaceContent();
+    });
+}
+
+var replacePhoto = function(url) {
+    var content_wrap = $('#content_wrap');
+    var content = $('#content')
+    var background = generateLoadingBackground(content)
+    displayLoading(true, content, background);
+    
+    var complete = 0;
+    var result = null;
+    
+    var replaceContent = function() {
+        if (complete == 2 && result != null) {
+            document.title = result['title'] + ' | Dag Stuan';
+
+            $(result['html']).filter('#content').find('img').one('load', function() {
+                hideLoading();
+                content_wrap.fadeOut(200, function() {
+                    content_wrap.html(result['html']);
+
+                    content_wrap.fadeIn(200, function() {
+                        ready = true;
+                    });
+                });
+            })
+            .each(function() {
+                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+             });
+        }
+    }
+    
+    scrollViewTo($('body'), 500, function() {
+        complete++;
+        replaceContent();
+    });
+    
+    $.get(url, function(res) {
+        complete++;
+        result = res;
+        replaceContent();
+    });
+}
+
+var updateGrid = function(url) {
+    var browse_grid = $('#browse_grid');
+    
+    browse_grid.children().fadeOut(200);
+    
+    opts['top'] = '220px'
+    opts['left'] = '320px'
+    
+    displayLoading(true, browse_grid);
+    
+    opts['top'] = 'auto';
+    opts['left'] = 'auto';
+    
+    var id = url.split('/')[2];
+    
+    $.get('/update_browse_grid/' + id + '/', function(res) {
+        browse_grid.fadeOut(200, function() {
+            browse_grid.html(res);
+    
+            setupGridLoading();
+    
+            browse_grid.fadeIn(200);
+        });
+    });
+}
+
+var setupGridLoading = function() {
+    opts['top'] = '44px';
+    opts['left'] = '43px';
+
+    $('.browse_thumb').each(function() {
+        var spinner = new Spinner(opts).spin(this);
+    });
+
+    opts['top'] = 'auto';
+    opts['left'] = 'auto';
+
+    $('#browse_grid img').css('display', 'none')
+                         .one('load', fadeInPhoto)
+                         .each(function() {
+                             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                         });
 }
 
 var showComments = function() {
@@ -231,6 +328,11 @@ var showComments = function() {
 }
 
 var scrollViewTo = function(element, duration, callback) {
+    if ($(window).scrollTop() == element.offset().top) {
+        callback();
+        return;
+    }
+    
     $('html, body').animate({
                                 scrollTop: element.offset().top,
                                 easing: 'swing',
@@ -305,7 +407,7 @@ $(document).on('submit', '#post_comments form', function(evt) {
             console.log("Error sending the comment!");
         },
     });
-})
+});
 
 $(document).on('click', '#prevlink, #nextlink', function(evt) {
 	evt.preventDefault();
@@ -319,6 +421,30 @@ $(document).on('click', '#prevlink, #nextlink', function(evt) {
 	History.pushState({url:url, call_func:'photo'}, null, url)
 });
 
+$(document).on('click', '#top a', function(evt) {
+    evt.preventDefault();
+    var url = $(this).attr('href');
+    
+    History.pushState({url: url}, null, url + '/');
+});
+
+$(document).on('click', '#browse_grid a', function(evt) {
+    evt.preventDefault();
+    
+    url = $(this).attr('href');
+
+	History.pushState({url: url}, null, url)
+});
+
+$(document).on('click', '#browse_menu a', function(evt) {
+    evt.preventDefault();
+    
+    url = $(this).attr('href');
+    
+    only_grid = true;
+    History.pushState({url:url, call_func:'gridupdate'}, null, url)
+});
+
 $(document).on('click', '#show_comments_link', function(evt) {
    evt.preventDefault();
    
@@ -328,24 +454,3 @@ $(document).on('click', '#show_comments_link', function(evt) {
    
    showComments();
 });
-
-$(document).on('click', '#top a', function(evt) {
-    evt.preventDefault();
-    var url = $(this).attr('href');
-    
-    hist_dict = {url:url};
-    
-    if (url === '/') {
-        hist_dict['call_func'] = 'photo';
-    }
-    
-    History.pushState(hist_dict, null, url + '/');
-});
-
-$(document).on('click', '#browse_grid a', function(evt) {
-    evt.preventDefault();
-    
-    url = $(this).attr('href');
-
-	History.pushState({url:url, call_func:'photo'}, null, url)
-})
