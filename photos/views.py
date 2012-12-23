@@ -130,7 +130,7 @@ def browse(request, year_id=None, tag_name=None):
         html = render_to_string('photos/browse_content.html', ret_dict)
 
         ret_json = {
-                    'title': 'Browse | Dag Stuan',
+                    'title': 'Browse',
                     'html': html
                    }
 
@@ -156,7 +156,7 @@ def about(request):
         html = render_to_string('photos/about_content.html', None)
 
         ret_json = {
-                    'title': 'About | Dag Stuan',
+                    'title': 'About',
                     'html': html
                    }
 

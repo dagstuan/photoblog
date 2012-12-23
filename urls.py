@@ -5,6 +5,8 @@ import settings
 from django.contrib import admin
 admin.autodiscover()
 
+from photos.feeds import PostsFeed
+
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'photos.views.post'),
@@ -19,6 +21,8 @@ urlpatterns = patterns('',
     url(r'^update_browse_grid/(?P<tag_name>\w+)/$', 'photos.views.update_browse_grid'),
     
     url(r'^comments/', include('django.contrib.comments.urls')),
+    
+    url(r'^rss/$', PostsFeed()),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
