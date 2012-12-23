@@ -433,7 +433,7 @@ $(document).on('click', '#browse_grid a', function(evt) {
     
     url = $(this).attr('href');
 
-	History.pushState({url: url}, null, url)
+	History.pushState({url: url, call_func:'photo'}, null, url)
 });
 
 $(document).on('click', '#browse_menu a', function(evt) {
