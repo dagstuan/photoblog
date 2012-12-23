@@ -157,6 +157,9 @@ var getNewContent = function(func, url) {
     if (func == 'photo') {
         replacePhoto(url);
     }
+    else if (func == 'load_photo') {
+        loadPhoto(url);
+    }
     else if (func == 'gridupdate' && only_grid == true) {
         updateGrid(url);
         only_grid = false;
@@ -166,9 +169,7 @@ var getNewContent = function(func, url) {
     }
 }
 
-var loadNewContent = function(url) {
-    var content = $('#content_wrap');
-    
+var fadeOutContentAndDisplaySpinner = function(content) {
     var spinner_options = {
         'top': '230px',
         'left': 'auto',
@@ -192,6 +193,12 @@ var loadNewContent = function(url) {
                      $(this).css('visibility', 'hidden')
                             .css('display', '');
                  });
+}
+
+var loadNewContent = function(url) {
+    var content = $('#content_wrap');
+    
+    fadeOutContentAndDisplaySpinner(content);
     
     var complete = 0;
     var result = null;
@@ -229,10 +236,53 @@ var loadNewContent = function(url) {
     });
 }
 
+// Called when coming from some other site (browse etc.) to viewing a photo
+// First fading out content, then loading and setting up the new photo
+var loadPhoto = function(url) {
+    var content_wrap = $('#content_wrap');
+    
+    fadeOutContentAndDisplaySpinner(content_wrap);
+    
+    var complete = 0;
+    var result = null;
+    
+    var replaceContent = function() {
+        if (complete == 2 && result != null) {
+            document.title = result['title'] + ' | Dag Stuan';
+            
+            $(result['html']).filter('#content').find('img').one('load', function() {
+                hideLoading();
+                content_wrap.fadeOut(200, function() {
+                    content_wrap.html(result['html']);
+
+                    content_wrap.fadeIn(200, function() {
+                        ready = true;
+                    });
+                });
+            })
+            .each(function() {
+                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+             });
+        }
+    }
+    
+    scrollViewTo($('body'), 500, function() {
+        complete++;
+        replaceContent();
+    });
+    
+    $.get(url, function(res) {
+        complete++;
+        result = res;
+        replaceContent();
+    });
+}
+
+// Called when a photo is to be replaced, going from a photo to another photo
 var replacePhoto = function(url) {
     var content_wrap = $('#content_wrap');
-    var content = $('#content')
-    var background = generateLoadingBackground(content)
+    var content = $('#content');
+    var background = generateLoadingBackground(content);
     displayLoading(true, content, background);
     
     var complete = 0;
@@ -433,7 +483,7 @@ $(document).on('click', '#browse_grid a', function(evt) {
     
     url = $(this).attr('href');
 
-	History.pushState({url: url, call_func:'photo'}, null, url)
+	History.pushState({url: url, call_func:'load_photo'}, null, url)
 });
 
 $(document).on('click', '#browse_menu a', function(evt) {
