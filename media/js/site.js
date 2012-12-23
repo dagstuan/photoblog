@@ -236,13 +236,7 @@ var loadNewContent = function(url) {
     });
 }
 
-// Called when coming from some other site (browse etc.) to viewing a photo
-// First fading out content, then loading and setting up the new photo
-var loadPhoto = function(url) {
-    var content_wrap = $('#content_wrap');
-    
-    fadeOutContentAndDisplaySpinner(content_wrap);
-    
+var loadPhotoContent = function(content_wrap, url) {
     var complete = 0;
     var result = null;
     
@@ -278,6 +272,16 @@ var loadPhoto = function(url) {
     });
 }
 
+// Called when coming from some other site (browse etc.) to viewing a photo
+// First fading out content, then loading and setting up the new photo
+var loadPhoto = function(url) {
+    var content_wrap = $('#content_wrap');
+    
+    fadeOutContentAndDisplaySpinner(content_wrap);
+    
+    loadPhotoContent(content_wrap, url);
+}
+
 // Called when a photo is to be replaced, going from a photo to another photo
 var replacePhoto = function(url) {
     var content_wrap = $('#content_wrap');
@@ -285,39 +289,7 @@ var replacePhoto = function(url) {
     var background = generateLoadingBackground(content);
     displayLoading(true, content, background);
     
-    var complete = 0;
-    var result = null;
-    
-    var replaceContent = function() {
-        if (complete == 2 && result != null) {
-            document.title = result['title'] + ' | Dag Stuan';
-
-            $(result['html']).filter('#content').find('img').one('load', function() {
-                hideLoading();
-                content_wrap.fadeOut(200, function() {
-                    content_wrap.html(result['html']);
-
-                    content_wrap.fadeIn(200, function() {
-                        ready = true;
-                    });
-                });
-            })
-            .each(function() {
-                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-             });
-        }
-    }
-    
-    scrollViewTo($('body'), 500, function() {
-        complete++;
-        replaceContent();
-    });
-    
-    $.get(url, function(res) {
-        complete++;
-        result = res;
-        replaceContent();
-    });
+    loadPhotoContent(content_wrap, url);
 }
 
 var updateGrid = function(url) {
