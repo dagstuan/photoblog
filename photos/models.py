@@ -1,3 +1,5 @@
+# coding=UTF-8
+
 from django.db import models
 import datetime
 from PIL import Image
@@ -78,7 +80,7 @@ class Photo(models.Model):
         # Finding EXIF aperture f-number
         fnumber = float(exif[33437][0]) / exif[33437][1]
     
-        self.exif_aperture = 'f/' + ('%.1f' % fnumber)
+        self.exif_aperture = 'ƒ/' + ('%.1f' % fnumber)
     
         # Finding EXIF aperture ISO-value
         self.exif_iso = 'ISO ' + str(exif[34855])
