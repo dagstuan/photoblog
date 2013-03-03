@@ -238,16 +238,17 @@ var loadNewContent = function(url) {
 
 var loadPhotoContent = function(content_wrap, url) {
     var complete = 0;
-    var result = null;
+    var result_title = null;
+    var result_html = null;
     
     var replaceContent = function() {
-        if (complete == 2 && result != null) {
-            document.title = result['title'] + ' | Dag Stuan';
+        if (complete == 2 && result_title != null && result_html != null) {
+            document.title = result_title + ' | Dag Stuan';
             
-            $(result['html']).filter('#content').find('img').one('load', function() {
+            result_html.filter('#content').find('img').one('load', function() {
                 hideLoading();
                 content_wrap.fadeOut(200, function() {
-                    content_wrap.html(result['html']);
+                    content_wrap.html(result_html);
 
                     content_wrap.fadeIn(200, function() {
                         ready = true;
@@ -267,7 +268,11 @@ var loadPhotoContent = function(content_wrap, url) {
     
     $.get(url, function(res) {
         complete++;
-        result = res;
+        result_html = $(res['html']);
+        result_title = res['title'];
+        
+        result_html.filter('#content').find('img').retina()
+        
         replaceContent();
     });
 }
