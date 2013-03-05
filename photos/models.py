@@ -8,6 +8,7 @@ import settings
 from django.core.files import File
 import StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
+import tagging
 from tagging.fields import TagField
 from tagging.models import Tag
 import copy
@@ -59,19 +60,48 @@ class Photo(models.Model):
     exif_shutter_speed = models.CharField(max_length=50, editable=False)
     tags = TagField()
     
-    def set_tags(self, tags):
-        Tag.objects.update_tags(self, tags)
+    def _cleanup_tags(self):
+        for tag in Tag.objects.all():
+            if tag.items.all().count() == 0:
+                tag.delete()
     
-    def get_tags(self):
-        return Tag.objects.get_for_object(self)
+    def reset_tags(self):
+        self.etags = ''
+        self.tags = ''
+        
+        self.save_tags(file_read=True)
     
-    def save(self, *args, **kwargs):        
-        try:
-            img = Image.open(self.image_file.path)
-        except:
-            super(Photo, self).save(*args, **kwargs)
-            img = Image.open(self.image_file.path)
+    def save_tags(self, img=None, file_read=False):
+        self.etags = self.tags
+        
+        # If reading the tags from file..
+        if file_read == True:
+            if img == None:
+                img = Image.open(self.image_file.file)
+        
+            xml = parseString(img.applist[3][1].replace('\n', '').strip('http://ns.adobe.com/xap/1.0/\x00'))
 
+            bag = xml.getElementsByTagName('rdf:Bag')
+
+            if bag:
+                tags = [elem.childNodes[0].data for elem in bag[0].getElementsByTagName('rdf:li')]
+            
+                for tag in tags:
+                    Tag.objects.add_tag(self, tag.replace(' ', ''))
+        
+        self.tags = ''
+        for tag in self.etags:
+            self.tags += tag.name + ', '
+        
+        super(Photo, self).save()
+        
+        # Some tags may have been rendered unused. Cleaning them up.
+        self._cleanup_tags()
+    
+    def save_exif(self, img=None):
+        if img == None:
+            img = Image.open(self.image_file.file)
+        
         exif = img._getexif()
         
         # Finding EXIF focal length
@@ -92,17 +122,25 @@ class Photo(models.Model):
         if shutter_dividend > 1:
             self.exif_shutter_speed = str(shutter_divisor) + '/' + str(shutter_dividend) + ' sec' 
         else:
-            self.exif_shutter_speed = str(shutter_divisor) + ' sec'        
+            self.exif_shutter_speed = str(shutter_divisor) + ' sec'
+    
+    #
+    # Helper function for generating the thumbs
+    #
+    def generate_thumbs(self, img=None):
+        try:
+            orig_thumb = Photo.objects.get(pk=self.pk).image_thumb
+            orig_thumb.delete(save=False)
+        except:
+            pass
+        
+        if img == None:
+            img = Image.open(self.image_file.file)
         
         path = settings.MEDIA_ROOT + settings.IMAGE_FOLDER
         
-        filename = (img.filename.split('/')[-1]).split('.')
-        filename_thumb = filename[0] + '_thumb.jpg'
-
-        max_size = (1800,1400)
-        
-        if img.size > max_size:
-            img.thumbnail(max_size, Image.ANTIALIAS)
+        name = self.image_file.name
+        filename_thumb = name.split('.')[0] + '_thumb.jpg'
         
         cropsize = min(img.size)
         
@@ -125,26 +163,53 @@ class Photo(models.Model):
         thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb, 'image/jpeg', thumb_io.len, None)
         
         self.image_thumb.save(filename_thumb, thumb_file, save=False)
-
+    
+    #
+    # Looks to check if the photo field needs replacement, and deletes original file.
+    # Expects a string fileattr argument
+    #
+    def _delete_existing_file(self, fileattr):
+        try:
+            if isinstance(getattr(self, fileattr).file, InMemoryUploadedFile):
+                orig_file = getattr(Photo.objects.get(pk=self.pk), fileattr)
+                orig_file.delete(save=False)
+                
+                # Returning true because the file existed and is now deleted,
+                # Meaning that tags should be read from the new file.
+                return True
+        except:
+            # Returning true because no file existed before, meaning tags will have
+            # to be read from the uploaded file.
+            return True
+            
+        return False
+    
+    def save(self, *args, **kwargs):
+        # Opens the biggest image available for creation of thumbs
+        img = Image.open(self.image_file.file)
+        
+        is_new_image = self._delete_existing_file('image_file')
+        self._delete_existing_file('image_file1x')
+        
+        self.save_exif(img)
+        
+        self.generate_thumbs(img)
+        
+        # Need to save before setting tags so that incoming tags will have a PK to bind to.
         super(Photo, self).save(*args, **kwargs)
         
-         # Automatically adding tags
-        xml = parseString(img.applist[3][1].replace('\n', '').strip('http://ns.adobe.com/xap/1.0/\x00'))
-
-        bag = xml.getElementsByTagName('rdf:Bag')
-
-        if bag:
-            tags = [elem.childNodes[0].data for elem in bag[0].getElementsByTagName('rdf:li')]
-            
-            for tag in tags:
-                Tag.objects.add_tag(self, tag.replace(' ', ''))
+        # Reading from file if the uploaded image is new, otherwise just reading from the TagField.
+        self.save_tags(img, file_read=True if is_new_image==True else False)
     
-    def delete(self, *args, **kwargs):
+    def _delete_tags(self):
         tags = Tag.objects.get_for_object(self)
         
         for tag in tags:
             if tag.items.all().count() == 1:
                 tag.delete()
+    
+    def delete(self, *args, **kwargs):
+        self._delete_tags()
         
         try:
             self.image_file.delete()
@@ -168,3 +233,5 @@ class Photo(models.Model):
     
     class Meta:
         verbose_name = 'Photo'
+
+tagging.register(Photo, tag_descriptor_attr='etags')
