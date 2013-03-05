@@ -312,6 +312,8 @@ var updateGrid = function(url) {
     
     var id = url.split('/')[2];
     
+    scrollViewTo($('body'), 500);
+    
     $.get('/update_browse_grid/' + id + '/', function(res) {
         browse_grid.fadeOut(200, function() {
             browse_grid.html(res);
