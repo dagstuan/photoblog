@@ -358,7 +358,7 @@ var showComments = function() {
 
 var scrollViewTo = function(element, duration, callback) {
     if ($(window).scrollTop() == element.offset().top) {
-        callback();
+        if (callback != undefined) callback();
         return;
     }
     
