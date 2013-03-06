@@ -52,7 +52,7 @@ class Post(models.Model):
 class Photo(models.Model):
     image_file2x = models.ImageField("Image file 2x", upload_to=settings.IMAGE_FOLDER)
     image_file1x = models.ImageField("Image file 1x", upload_to=settings.IMAGE_FOLDER)
-    image_thumb2x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False, null=True)
+    image_thumb2x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     image_thumb1x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     post = models.OneToOneField(Post)
     exif_focal_length = models.CharField(max_length=50, editable=False)
@@ -142,6 +142,18 @@ class Photo(models.Model):
             super(Photo, self).save()
     
     #
+    # Saving image img, with filename fname, to variable var.
+    #
+    def _save_thumb(self, img, fname, var):
+        # Saving thumb while keeping it in memory
+        thumb_io = StringIO.StringIO()
+        img.save(thumb_io, format='JPEG')
+        
+        thumb_file = InMemoryUploadedFile(thumb_io, None, fname, 'image/jpeg', thumb_io.len, None)
+        
+        var.save(fname, thumb_file, save=False)
+    
+    #
     # Helper function for generating the thumbs (retina and normal)
     # Save-argument is whether or not to save the model after generating.
     #
@@ -176,22 +188,8 @@ class Photo(models.Model):
         crop2x.thumbnail(thumb_size2x, Image.ANTIALIAS)
         crop1x.thumbnail(thumb_size1x, Image.ANTIALIAS)
         
-        
-        # Saving thumb while keeping it in memory
-        thumb_io = StringIO.StringIO()
-        crop2x.save(thumb_io, format='JPEG')
-        
-        thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb2x, 'image/jpeg', thumb_io.len, None)
-        
-        self.image_thumb2x.save(filename_thumb2x, thumb_file, save=False)
-        
-        # Saving thumb while keeping it in memory
-        thumb_io = StringIO.StringIO()
-        crop1x.save(thumb_io, format='JPEG')
-        
-        thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb1x, 'image/jpeg', thumb_io.len, None)
-        
-        self.image_thumb1x.save(filename_thumb1x, thumb_file, save=False)
+        self._save_thumb(crop2x, filename_thumb2x, self.image_thumb2x)
+        self._save_thumb(crop1x, filename_thumb1x, self.image_thumb1x)
         
         if save:
             super(Photo, self).save()
