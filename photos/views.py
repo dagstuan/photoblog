@@ -32,10 +32,12 @@ def post(request, post_id=None, comments=False):
     
     if request.is_ajax():
         html = render_to_string('photos/photo.html', csrfContext)
+        footer = render_to_string('photos/photo_footer.html')
         
         ret_json = {
                     'title': post.title,
-                    'html': html
+                    'html': html,
+                    'footer': footer
                    }
                    
         if comments:
@@ -50,7 +52,6 @@ def post(request, post_id=None, comments=False):
 
 def post_with_comments(request, post_id):
     return post(request, post_id, comments=True)
-
         
 def get_comments(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -128,10 +129,12 @@ def browse(request, year_id=None, tag_name=None):
     
     if request.is_ajax():
         html = render_to_string('photos/browse_content.html', ret_dict)
+        footer = render_to_string('default_footer.html')
 
         ret_json = {
                     'title': 'Browse',
-                    'html': html
+                    'html': html,
+                    'footer': footer
                    }
 
         response = HttpResponse(simplejson.dumps(ret_json), content_type = 'application/json; charset=utf8')
@@ -154,10 +157,12 @@ def update_browse_grid(request, year_id=None, tag_name=None):
 def about(request):
     if request.is_ajax():
         html = render_to_string('photos/about_content.html', None)
+        footer = render_to_string('default_footer.html')
 
         ret_json = {
                     'title': 'About',
-                    'html': html
+                    'html': html,
+                    'footer': footer
                    }
 
         response = HttpResponse(simplejson.dumps(ret_json), content_type = 'application/json; charset=utf8')

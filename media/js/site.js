@@ -193,6 +193,8 @@ var fadeOutContentAndDisplaySpinner = function(content) {
                      $(this).css('visibility', 'hidden')
                             .css('display', '');
                  });
+    
+    
 }
 
 var loadNewContent = function(url) {
@@ -213,7 +215,11 @@ var loadNewContent = function(url) {
                 if (url == '/browse') {
                     setupGridLoading();
                 }
-
+                
+                if(result['footer'] != null) {
+                    $('#footer').html(result['footer']);
+                }
+                
                 $('#footer').css('visibility', 'visible')
                             .css('display', 'none')
                             .fadeIn(200);
@@ -240,6 +246,7 @@ var loadPhotoContent = function(content_wrap, url) {
     var complete = 0;
     var result_title = null;
     var result_html = null;
+    var result_footer = null;
     
     var replaceContent = function() {
         if (complete == 2 && result_title != null && result_html != null) {
@@ -247,12 +254,27 @@ var loadPhotoContent = function(content_wrap, url) {
             
             result_html.filter('#content').find('img').one('load', function() {
                 hideLoading();
+                
+                var footer = $('#footer')
+                
+                // If the footer isnt being currently animated, it means that no other
+                // methods are hiding it. So we'll need to do it ourselves.
+                if (!footer.is(':animated')) {
+                    footer.fadeOut(200)
+                }
+                
                 content_wrap.fadeOut(200, function() {
-                    content_wrap.html(result_html);
-
-                    content_wrap.fadeIn(200, function() {
-                        ready = true;
-                    });
+                                content_wrap.html(result_html);
+                    
+                                if(result_footer != null) footer.html(result_footer);
+                    
+                                footer.css('visibility', 'visible')
+                                      .css('display', 'none')
+                                      .fadeIn(100);
+                                  
+                                content_wrap.fadeIn(200, function() {
+                                    ready = true;
+                                });
                 });
             })
             .each(function() {
@@ -270,8 +292,9 @@ var loadPhotoContent = function(content_wrap, url) {
         complete++;
         result_html = $(res['html']);
         result_title = res['title'];
+        result_footer = res['footer'];
         
-        result_html.filter('#content').find('img').retina()
+        result_html.filter('#content').find('img').retina();
         
         replaceContent();
     });
