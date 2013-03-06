@@ -10,7 +10,7 @@ import StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import tagging
 from tagging.fields import TagField
-from tagging.models import Tag
+from tagging.models import Tag, TaggedItem
 import copy
 import os
 
@@ -61,9 +61,19 @@ class Photo(models.Model):
     exif_shutter_speed = models.CharField(max_length=50, editable=False)
     tags = TagField()
     
-    def _cleanup_tags(self):
-        for tag in Tag.objects.all():
-            if tag.items.all().count() == 0:
+    #
+    # tag_limit is a variable used to determine the minimum amount of
+    # times a tag is used before deletion (see delete())
+    # Object is supplied because of delete.
+    #
+    def _cleanup_tags(self, photo=None, tag_limit=0):
+        tags = Tag.objects.all()
+        
+        if photo != None:
+            tags = Tag.objects.get_for_object(photo)
+        
+        for tag in tags:
+            if tag.items.all().count() <= tag_limit:
                 tag.delete()
     
     def reset_tags(self):
@@ -99,7 +109,7 @@ class Photo(models.Model):
         # Some tags may have been rendered unused. Cleaning them up.
         self._cleanup_tags()
     
-    def save_exif(self, img=None):
+    def save_exif(self, img=None, save=True):
         if img == None:
             img = Image.open(self.image_file2x.file)
         
@@ -124,8 +134,14 @@ class Photo(models.Model):
             self.exif_shutter_speed = str(shutter_divisor) + '/' + str(shutter_dividend) + ' sec' 
         else:
             self.exif_shutter_speed = str(shutter_divisor) + ' sec'
+        
+        if save:
+            super(Photo, self).save()
     
-    def _delete_thumbs(self, save=False):
+    #
+    # If the thumbs exist, get rid of them!
+    #
+    def _delete_thumbs(self, save=True):
         try:
             orig_thumb2x = Photo.objects.get(pk=self.pk).image_thumb2x
             orig_thumb2x.delete(save=False)
@@ -158,7 +174,7 @@ class Photo(models.Model):
     # Save-argument is whether or not to save the model after generating.
     #
     def generate_thumbs(self, img=None, save=True):
-        self._delete_thumbs()
+        self._delete_thumbs(save)
         
         if img == None:
             img = Image.open(self.image_file2x.file)
@@ -218,10 +234,17 @@ class Photo(models.Model):
         # Opens the biggest image available for creation of thumbs
         img = Image.open(self.image_file2x.file)
         
+        #
+        # If this is an edit, delete original images if trying to upload replacements.
+        # Otherwise, nothing will happen in the next two lines.
+        #
         is_new_image = self._delete_existing_file('image_file2x')
         self._delete_existing_file('image_file1x')
         
-        self.save_exif(img)
+        #
+        # Not saving any of these directly since they will be saved below.
+        #
+        self.save_exif(img, save=False)
         
         self.generate_thumbs(img, save=False)
         
@@ -231,15 +254,12 @@ class Photo(models.Model):
         # Reading from file if the uploaded image is new, otherwise just reading from the TagField.
         self.save_tags(img, file_read=True if is_new_image==True else False)
     
-    def _delete_tags(self):
-        tags = Tag.objects.get_for_object(self)
-        
-        for tag in tags:
-            if tag.items.all().count() == 1:
-                tag.delete()
-    
     def delete(self, *args, **kwargs):
-        self._delete_tags()
+        #
+        # Since the photo has not been deleted yet, the limit for tag
+        # deletion should be at 1.
+        #
+        self._cleanup_tags(photo=self, tag_limit=1)
         
         try:
             self.image_file2x.delete()
@@ -260,6 +280,12 @@ class Photo(models.Model):
             self.image_thumb1x.delete()
         except:
             pass
+        
+        #
+        # Deleting TaggedItem-objects for this photo.
+        #
+        for tagged_item in TaggedItem.objects.filter(object_id=self.pk):
+            tagged_item.delete()
         
         super(Photo, self).delete(*args, **kwargs)
     
