@@ -39,7 +39,7 @@ class Post(models.Model):
     is_published.short_description = "Is published?"
     
     def admin_thumbnail(self):
-        return '<img src="%s"/>' % self.photo.image_thumb.url
+        return '<img src="%s"/>' % self.photo.image_thumb1x.url
     admin_thumbnail.allow_tags = True
     admin_thumbnail.short_description = 'Thumbnail'
         
@@ -50,9 +50,10 @@ class Post(models.Model):
         verbose_name = 'Post'
 
 class Photo(models.Model):
-    image_file = models.ImageField("Image file 2x", upload_to=settings.IMAGE_FOLDER)
+    image_file2x = models.ImageField("Image file 2x", upload_to=settings.IMAGE_FOLDER)
     image_file1x = models.ImageField("Image file 1x", upload_to=settings.IMAGE_FOLDER)
-    image_thumb = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
+    image_thumb2x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False, null=True)
+    image_thumb1x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
     post = models.OneToOneField(Post)
     exif_focal_length = models.CharField(max_length=50, editable=False)
     exif_aperture = models.CharField(max_length=50, editable=False)
@@ -77,7 +78,7 @@ class Photo(models.Model):
         # If reading the tags from file..
         if file_read == True:
             if img == None:
-                img = Image.open(self.image_file.file)
+                img = Image.open(self.image_file2x.file)
         
             xml = parseString(img.applist[3][1].replace('\n', '').strip('http://ns.adobe.com/xap/1.0/\x00'))
 
@@ -100,7 +101,7 @@ class Photo(models.Model):
     
     def save_exif(self, img=None):
         if img == None:
-            img = Image.open(self.image_file.file)
+            img = Image.open(self.image_file2x.file)
         
         exif = img._getexif()
         
@@ -129,17 +130,17 @@ class Photo(models.Model):
     #
     def generate_thumbs(self, img=None):
         try:
-            orig_thumb = Photo.objects.get(pk=self.pk).image_thumb
+            orig_thumb = Photo.objects.get(pk=self.pk).image_thumb1x
             orig_thumb.delete(save=False)
         except:
             pass
         
         if img == None:
-            img = Image.open(self.image_file.file)
+            img = Image.open(self.image_file2x.file)
         
         path = settings.MEDIA_ROOT + settings.IMAGE_FOLDER
         
-        name = self.image_file.name
+        name = self.image_file2x.name
         filename_thumb = name.split('.')[0] + '_thumb.jpg'
         
         cropsize = min(img.size)
@@ -162,7 +163,7 @@ class Photo(models.Model):
         
         thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb, 'image/jpeg', thumb_io.len, None)
         
-        self.image_thumb.save(filename_thumb, thumb_file, save=False)
+        self.image_thumb1x.save(filename_thumb, thumb_file, save=False)
     
     #
     # Looks to check if the photo field needs replacement, and deletes original file.
@@ -186,9 +187,9 @@ class Photo(models.Model):
     
     def save(self, *args, **kwargs):
         # Opens the biggest image available for creation of thumbs
-        img = Image.open(self.image_file.file)
+        img = Image.open(self.image_file2x.file)
         
-        is_new_image = self._delete_existing_file('image_file')
+        is_new_image = self._delete_existing_file('image_file2x')
         self._delete_existing_file('image_file1x')
         
         self.save_exif(img)
@@ -212,7 +213,7 @@ class Photo(models.Model):
         self._delete_tags()
         
         try:
-            self.image_file.delete()
+            self.image_file2x.delete()
         except:
             pass
             
@@ -222,7 +223,7 @@ class Photo(models.Model):
             pass
         
         try:
-            self.image_thumb.delete()
+            self.image_thumb1x.delete()
         except:
             pass
         
