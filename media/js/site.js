@@ -335,6 +335,8 @@ var setupGridLoading = function() {
 
     opts['top'] = 'auto';
     opts['left'] = 'auto';
+    
+    $('#browse_grid img').retina()
 
     $('#browse_grid img').css('display', 'none')
                          .one('load', fadeInPhoto)

@@ -125,23 +125,37 @@ class Photo(models.Model):
         else:
             self.exif_shutter_speed = str(shutter_divisor) + ' sec'
     
-    #
-    # Helper function for generating the thumbs
-    #
-    def generate_thumbs(self, img=None):
+    def _delete_thumbs(self, save=False):
         try:
-            orig_thumb = Photo.objects.get(pk=self.pk).image_thumb1x
-            orig_thumb.delete(save=False)
+            orig_thumb2x = Photo.objects.get(pk=self.pk).image_thumb2x
+            orig_thumb2x.delete(save=False)
         except:
             pass
+            
+        try:
+            orig_thumb1x = Photo.objects.get(pk=self.pk).image_thumb1x
+            orig_thumb1x.delete(save=False)
+        except:
+            pass
+        
+        if save:
+            super(Photo, self).save()
+    
+    #
+    # Helper function for generating the thumbs (retina and normal)
+    # Save-argument is whether or not to save the model after generating.
+    #
+    def generate_thumbs(self, img=None, save=True):
+        self._delete_thumbs()
         
         if img == None:
             img = Image.open(self.image_file2x.file)
         
         path = settings.MEDIA_ROOT + settings.IMAGE_FOLDER
         
-        name = self.image_file2x.name
-        filename_thumb = name.split('.')[0] + '_thumb.jpg'
+        name = self.image_file1x.name
+        filename_thumb1x = name.split('.')[0] + '_thumb.jpg'
+        filename_thumb2x = name.split('.')[0] + '_thumb_2x.jpg'
         
         cropsize = min(img.size)
         
@@ -153,17 +167,34 @@ class Photo(models.Model):
         y1 = (h/2) - (cropsize/2)
         y2 = y1 + cropsize
         
-        crop = img.crop((x1,y1,x2,y2))
-        thumb_size = (122, 122)
-        crop.thumbnail(thumb_size, Image.ANTIALIAS)
-
+        crop2x = img.crop((x1,y1,x2,y2))
+        crop1x = img.crop((x1,y1,x2,y2))
+        
+        thumb_size2x = (244, 244)
+        thumb_size1x = (122, 122)
+        
+        crop2x.thumbnail(thumb_size2x, Image.ANTIALIAS)
+        crop1x.thumbnail(thumb_size1x, Image.ANTIALIAS)
+        
+        
         # Saving thumb while keeping it in memory
         thumb_io = StringIO.StringIO()
-        crop.save(thumb_io, format='JPEG')
+        crop2x.save(thumb_io, format='JPEG')
         
-        thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb, 'image/jpeg', thumb_io.len, None)
+        thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb2x, 'image/jpeg', thumb_io.len, None)
         
-        self.image_thumb1x.save(filename_thumb, thumb_file, save=False)
+        self.image_thumb2x.save(filename_thumb2x, thumb_file, save=False)
+        
+        # Saving thumb while keeping it in memory
+        thumb_io = StringIO.StringIO()
+        crop1x.save(thumb_io, format='JPEG')
+        
+        thumb_file = InMemoryUploadedFile(thumb_io, None, filename_thumb1x, 'image/jpeg', thumb_io.len, None)
+        
+        self.image_thumb1x.save(filename_thumb1x, thumb_file, save=False)
+        
+        if save:
+            super(Photo, self).save()
     
     #
     # Looks to check if the photo field needs replacement, and deletes original file.
@@ -194,7 +225,7 @@ class Photo(models.Model):
         
         self.save_exif(img)
         
-        self.generate_thumbs(img)
+        self.generate_thumbs(img, save=False)
         
         # Need to save before setting tags so that incoming tags will have a PK to bind to.
         super(Photo, self).save(*args, **kwargs)
@@ -219,6 +250,11 @@ class Photo(models.Model):
             
         try:
             self.image_file1x.delete()
+        except:
+            pass
+        
+        try:
+            self.image_thumb2x.delete()
         except:
             pass
         
