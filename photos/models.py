@@ -50,6 +50,11 @@ class Post(models.Model):
         verbose_name = 'Post'
 
 class Photo(models.Model):
+    #
+    # Every photo needs to have two sizes to optimize for both retina and
+    # normal displays. Currently uploading two sizes manually since lightrooms export
+    # resize is much better than PILs.
+    #
     image_file2x = models.ImageField("Image file 2x", upload_to=settings.IMAGE_FOLDER)
     image_file1x = models.ImageField("Image file 1x", upload_to=settings.IMAGE_FOLDER)
     image_thumb2x = models.ImageField(upload_to=settings.IMAGE_FOLDER, editable=False)
@@ -257,7 +262,9 @@ class Photo(models.Model):
     def delete(self, *args, **kwargs):
         #
         # Since the photo has not been deleted yet, the limit for tag
-        # deletion should be at 1.
+        # deletion should be at 1. Note that TaggedItems are deleted
+        # further down. Since some tags may still be in use they wont
+        # be deleted by _cleanup_tags()
         #
         self._cleanup_tags(photo=self, tag_limit=1)
         
