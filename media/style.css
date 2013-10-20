@@ -275,15 +275,17 @@ body {
 
 
 #bottom .head {
-    margin-top: 5px;
-    margin-bottom: 15px;
+    float: left;
+    margin-bottom: 10px;
     padding-left: 10px;
     color: #777;
     font: normal 1.9em Garamond, GaramondPro;
 }
 
 #bottom .comment {
-    margin-left: 15px;
+    display: block;
+    padding-top: 9px;
+    padding-left: 9px;
     overflow: hidden;
 }
 
@@ -293,6 +295,7 @@ body {
 }
 
 #bottom #information {
+    clear: both;
     height: 50px;
     border-top: 1px solid #333;
 }

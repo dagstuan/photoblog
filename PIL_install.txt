@@ -1,0 +1,5 @@
+sudo easy_install pip
+sudo brew install libjpeg
+sudo pip install pil
+
+http://stackoverflow.com/questions/5546860/how-to-install-pil-in-system-library-using-homebrew

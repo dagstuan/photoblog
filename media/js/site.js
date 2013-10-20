@@ -259,6 +259,7 @@ var loadPhotoContent = function(content_wrap, url) {
                 
                 // If the footer isnt being currently animated, it means that no other
                 // methods are hiding it. So we'll need to do it ourselves.
+                // TODO: this is kind of hacky..
                 if (!footer.is(':animated')) {
                     footer.fadeOut(200)
                 }
