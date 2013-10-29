@@ -201,7 +201,7 @@ class Photo(models.Model):
         if gps_info_tag in exif:
             self._set_exif_gps_data(exif[gps_info_tag])
         else:
-            print 'Could not save gps exif for image with post-title', self.post.id
+            print 'Could not save gps exif for image with post id', self.post.id
                         
         if save:
             super(Photo, self).save()
