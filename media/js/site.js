@@ -193,8 +193,6 @@ var fadeOutContentAndDisplaySpinner = function(content) {
                      $(this).css('visibility', 'hidden')
                             .css('display', '');
                  });
-    
-    
 }
 
 var loadNewContent = function(url) {
@@ -202,43 +200,34 @@ var loadNewContent = function(url) {
     
     fadeOutContentAndDisplaySpinner(content);
     
-    var complete = 0;
-    var result = null;
-    
-    var replaceContent = function() {
-        if (complete == 2 && result != null) {
-            content.fadeOut(200, function() {
-                document.title = result['title'] + ' | Dag Stuan';
-                content.html(result['html']);
+    var scrolledView = scrollViewTo($('body'), 500);
 
-                // TODO: make this prettier..
-                if (url == '/browse') {
-                    setupGridLoading();
-                }
-                
-                if(result['footer'] != null) {
-                    $('#footer').html(result['footer']);
-                }
-                
-                $('#footer').css('visibility', 'visible')
-                            .css('display', 'none')
-                            .fadeIn(200);
-                content.fadeIn(200, function() {
-                    ready = true;
-                });
+    var contentLoaded = $.get(url);
+    
+    $.when(contentLoaded, scrolledView).then(function(contentLoadedResult) {
+        content.fadeOut(200, function() {
+            var result = contentLoadedResult[0];
+            
+            document.title = result['title'] + ' | Dag Stuan';
+            content.html(result['html']);
+
+            // TODO: make this prettier..
+            if (url == '/browse') {
+                setupGridLoading();
+            }
+            
+            if(result['footer'] != null) {
+                $('#footer').html(result['footer']);
+            }
+            
+            $('#footer').css('visibility', 'visible')
+                        .css('display', 'none')
+                        .fadeIn(200);
+            
+            content.fadeIn(200, function() {
+                ready = true;
             });
-        }
-    }
-    
-    scrollViewTo($('body'), 500, function() {
-        complete++;
-        replaceContent();
-    });
-
-    $.get(url, function(res) {
-        result = res;
-        complete++;
-        replaceContent();
+        });
     });
 }
 
@@ -247,57 +236,49 @@ var loadPhotoContent = function(content_wrap, url) {
     var result_title = null;
     var result_html = null;
     var result_footer = null;
+
+    var scrolledView = scrollViewTo($('body'), 500);
     
-    var replaceContent = function() {
-        if (complete == 2 && result_title != null && result_html != null) {
-            document.title = result_title + ' | Dag Stuan';
-            
-            result_html.filter('#content').find('img').one('load', function() {
-                hideLoading();
-                
-                var footer = $('#footer')
-                
-                // If the footer isnt being currently animated, it means that no other
-                // methods are hiding it. So we'll need to do it ourselves.
-                // TODO: this is kind of hacky..
-                if (!footer.is(':animated')) {
-                    footer.fadeOut(200)
-                }
-                
-                content_wrap.fadeOut(200, function() {
-                                content_wrap.html(result_html);
-                    
-                                if(result_footer != null) footer.html(result_footer);
-                    
-                                footer.css('visibility', 'visible')
-                                      .css('display', 'none')
-                                      .fadeIn(100);
-                                  
-                                content_wrap.fadeIn(200, function() {
-                                    ready = true;
-                                });
-                });
-            })
-            .each(function() {
-                 if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-             });
-        }
-    }
-    
-    scrollViewTo($('body'), 500, function() {
-        complete++;
-        replaceContent();
-    });
-    
-    $.get(url, function(res) {
-        complete++;
+    var photoLoaded = $.get(url).done(function(res) {
         result_html = $(res['html']);
         result_title = res['title'];
         result_footer = res['footer'];
         
         result_html.filter('#content').find('img').retina();
+    });
+    
+    $.when(scrolledView, photoLoaded).then(function() {
+        document.title = result_title + ' | Dag Stuan';
         
-        replaceContent();
+        result_html.filter('#content').find('img').one('load', function() {
+            hideLoading();
+            
+            var footer = $('#footer')
+            
+            // If the footer isnt being currently animated, it means that no other
+            // methods are hiding it. So we'll need to do it ourselves.
+            // TODO: this is kind of hacky..
+            if (!footer.is(':animated')) {
+                footer.fadeOut(200)
+            }
+            
+            content_wrap.fadeOut(200, function() {
+                            content_wrap.html(result_html);
+                
+                            if(result_footer != null) footer.html(result_footer);
+                
+                            footer.css('visibility', 'visible')
+                                  .css('display', 'none')
+                                  .fadeIn(100);
+                              
+                            content_wrap.fadeIn(200, function() {
+                                ready = true;
+                            });
+            });
+        })
+        .each(function() {
+             if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+         });
     });
 }
 
@@ -324,7 +305,7 @@ var replacePhoto = function(url) {
 var updateGrid = function(url) {
     var browse_grid = $('#browse_grid');
     
-    browse_grid.children().fadeOut(200);
+    var browseGridIsFadedOut = browse_grid.fadeOut(200).promise();
     
     opts['top'] = '220px'
     opts['left'] = '320px'
@@ -336,17 +317,17 @@ var updateGrid = function(url) {
     
     var id = url.split('/')[2];
     
-    scrollViewTo($('body'), 500);
+    var viewIsScrolled = scrollViewTo($('body'), 500);
     
-    $.get('/update_browse_grid/' + id + '/', function(res) {
-        browse_grid.fadeOut(200, function() {
-            browse_grid.html(res);
+    var fetchedBrowseGrid = $.get('/update_browse_grid/' + id + '/');
     
-            setupGridLoading();
-    
-            browse_grid.fadeIn(200);
-        });
-    });
+    $.when(fetchedBrowseGrid, browseGridIsFadedOut, viewIsScrolled).then(function(browseGridResult) {
+        browse_grid.html(browseGridResult[0]);
+
+        setupGridLoading();
+
+        browse_grid.fadeIn(200);
+    })
 }
 
 var setupGridLoading = function() {
@@ -382,16 +363,15 @@ var showComments = function() {
                  });
 }
 
-var scrollViewTo = function(element, duration, callback) {
+var scrollViewTo = function(element, duration) {
+    var deferred = $.Deferred();
+    
     if ($(window).scrollTop() == element.offset().top) {
-        if (callback != undefined) callback();
-        return;
+        deferred.resolve();
+        return deferred.promise();
     }
     
-    $('html, body').animate({
-                                scrollTop: element.offset().top,
-                                easing: 'swing',
-                            }, duration, callback);
+    return $('html, body').animate({scrollTop: element.offset().top, easing: 'swing'}, duration).promise();
 }
 
 var fadeInPhoto = function(evt) {
@@ -483,7 +463,7 @@ $(document).on('click', '#top a', function(evt) {
     History.pushState({url: url}, null, url + '/');
 });
 
-$(document).on('click', '#browse_grid a', function(evt) {
+$(document).on('click', '#browse_grid a, #map .map_thumb a', function(evt) {
     evt.preventDefault();
     
     url = $(this).attr('href');

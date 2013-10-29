@@ -90,6 +90,49 @@ def _get_prev_and_next_post(post):
         pass
     
     return prev_id, next_id
+    
+def map(request):
+    if request.is_ajax():
+        html = render_to_string('photos/map_content.html')
+        footer = render_to_string('default_footer.html')
+
+        ret_json = {
+                    'title': 'Map',
+                    'html': html,
+                    'footer': footer
+                   }
+
+        response = HttpResponse(simplejson.dumps(ret_json), content_type = 'application/json; charset=utf8')
+        response['Cache-Control'] = 'no-cache'
+
+        return response
+    else:
+        return render_to_response('photos/map.html')
+
+def get_images_for_map(request):
+    if request.is_ajax() == False:
+        raise Http404
+    
+    posts = Post.objects.filter(pub_date__lte=datetime.date.today()) \
+                        .exclude(photo__exif_latitude = -1) \
+                        .exclude(photo__exif_longitude = -1) \
+                        .order_by('-pub_date', '-id')
+                        
+    ret_json = []
+    
+    for post in posts:
+        ret_json.append({
+            'title': post.title,
+            'absolute_url': post.get_absolute_url(),
+            'image_url': post.photo.image_thumb1x.url,
+            'latitude': post.photo.exif_latitude,
+            'longitude': post.photo.exif_longitude
+        })
+    
+    response = HttpResponse(simplejson.dumps(ret_json), content_type = 'application/json; charset=utf8')
+    response['Cache-Control'] = 'no-cache'
+    
+    return response
 
 def _get_posts_for_browse_grid(year_id=None, tag_name=None, posts=None):
     # If posts are supplied our task is purely filtering, so

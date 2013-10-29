@@ -2,13 +2,32 @@
 <html>
 <head>
 	<title>{% block title %}Dag Stuan{% endblock %}</title>
-	<link rel="stylesheet" href="/media/style.css" />
+	<link rel="stylesheet" href="/media/css/style.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
 	<script type="text/javascript" src="/media/js/jquery.retina.js"></script>
 	<script type="text/javascript" src="/media/js/jquery.history.js"></script>
 	<script type="text/javascript" src="/media/js/spin.min.js"></script>
 	<script type="text/javascript" src="/media/js/site.js"></script>
+    
+    
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+    <![endif]-->
+
+    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="/media/css/leaflet.markercluster/MarkerCluster.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/media/css/leaflet.markercluster/MarkerCluster.Default.ie.css" /><![endif]-->
+	<script src="/media/js/leaflet.markercluster/leaflet.markercluster.js"></script>
+    
+    <link rel="stylesheet" href="/media/css/leaflet.awesome-markers/leaflet.awesome-markers.css">
+    <script src="/media/js/leaflet.awesome-markers/leaflet.awesome-markers.js"></script>
+    
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+    
+
 	<script type="text/javascript">
 
 	  var _gaq = _gaq || [];
@@ -32,7 +51,8 @@
 				<ul>
 					<li><a id="indexbutton" href="/">INDEX</a></li>
 					<li><a id="browsebutton" href="/browse">BROWSE</a></li>
-					<li><a id="aboutbutton" href="/about">ABOUT</a></li>					
+					<li><a id="mapbutton" href="/map">MAP</a></li>
+					<li><a id="aboutbutton" href="/about">ABOUT</a></li>
 				</ul>
 			</div> <!-- END menu -->
 			<span class="hr"></span>

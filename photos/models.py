@@ -3,6 +3,7 @@
 from django.db import models
 import datetime
 from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
 from xml.dom.minidom import parseString
 import settings
 from django.core.files import File
@@ -64,6 +65,8 @@ class Photo(models.Model):
     exif_aperture = models.CharField(max_length=50, editable=False)
     exif_iso = models.CharField(max_length=50, editable=False)
     exif_shutter_speed = models.CharField(max_length=50, editable=False)
+    exif_longitude = models.FloatField(max_length=50, editable=False)
+    exif_latitude = models.FloatField(max_length=50, editable=False)
     tags = TagField()
     
     #
@@ -114,32 +117,92 @@ class Photo(models.Model):
         # Some tags may have been rendered unused. Cleaning them up.
         self._cleanup_tags()
     
+    def _set_exif_gps_data(self, gpsinfo):
+        def _get_if_exist(data, key):
+            if key in data:
+                return data[key]
+
+            return None
+    
+        def _convert_to_degress(value):
+            """Helper function to convert the GPS coordinates stored in the EXIF to degress in float format"""
+            d0 = value[0][0]
+            d1 = value[0][1]
+            d = float(d0) / float(d1)
+
+            m0 = value[1][0]
+            m1 = value[1][1]
+            m = float(m0) / float(m1)
+
+            s0 = value[2][0]
+            s1 = value[2][1]
+            s = float(s0) / float(s1)
+
+            return d + (m / 60.0) + (s / 3600.0)
+        
+        gps_data = {}
+        
+        for t in gpsinfo:
+            sub_decoded = GPSTAGS.get(t, t)
+            gps_data[sub_decoded] = gpsinfo[t]
+            
+        lat = -1
+        lon = -1
+        gps_latitude = _get_if_exist(gps_data, 'GPSLatitude')
+        gps_latitude_ref = _get_if_exist(gps_data, 'GPSLatitudeRef')
+        gps_longitude = _get_if_exist(gps_data, 'GPSLongitude')
+        gps_longitude_ref = _get_if_exist(gps_data, 'GPSLongitudeRef')
+
+        if gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref:
+            lat = _convert_to_degress(gps_latitude)
+            if gps_latitude_ref != "N":
+                lat = 0 - lat
+            
+            lon = _convert_to_degress(gps_longitude)
+            if gps_longitude_ref != "E":
+                lon = 0 - lon
+        
+        self.exif_latitude = lat
+        self.exif_longitude = lon
+            
     def save_exif(self, img=None, save=True):
         if img == None:
             img = Image.open(self.image_file2x.file)
         
         exif = img._getexif()
+        tags = {v:k for k, v in TAGS.items()}
+        
+        focal_length_tag = tags['FocalLength']
+        f_number_tag = tags['FNumber']
+        iso_speed_tag = tags['ISOSpeedRatings']
+        exposure_tag = tags['ExposureTime']
+        gps_info_tag = tags['GPSInfo']
         
         # Finding EXIF focal length
-        self.exif_focal_length = str(exif[37386][0]) + 'mm'
+        self.exif_focal_length = str(exif[focal_length_tag][0]) + 'mm'
     
         # Finding EXIF aperture f-number
-        fnumber = float(exif[33437][0]) / exif[33437][1]
+        fnumber = float(exif[f_number_tag][0]) / exif[f_number_tag][1]
     
         self.exif_aperture = 'ƒ/' + ('%.1f' % fnumber)
     
         # Finding EXIF aperture ISO-value
-        self.exif_iso = 'ISO ' + str(exif[34855])
+        self.exif_iso = 'ISO ' + str(exif[iso_speed_tag])
     
         # Finding EXIF aperture shutter duration
-        shutter_divisor = exif[33434][0]
-        shutter_dividend = exif[33434][1]
+        shutter_divisor = exif[exposure_tag][0]
+        shutter_dividend = exif[exposure_tag][1]
     
         if shutter_dividend > 1:
             self.exif_shutter_speed = str(shutter_divisor) + '/' + str(shutter_dividend) + ' sec' 
         else:
             self.exif_shutter_speed = str(shutter_divisor) + ' sec'
         
+        if gps_info_tag in exif:
+            self._set_exif_gps_data(exif[gps_info_tag])
+        else:
+            print 'Could not save gps exif for image with post-title', self.post.title
+                        
         if save:
             super(Photo, self).save()
     

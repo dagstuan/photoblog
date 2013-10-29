@@ -412,3 +412,32 @@ body {
         background-size: 236px 58px;
     }
 }
+
+/* Map */
+
+#map { 
+    margin: 0 auto;
+    width: 98%;
+    height: 700px;
+}
+
+#map .leaflet-popup-content-wrapper {
+    background: #2B2B2B;
+}
+
+#map .leaflet-popup-tip {
+    background: #2B2B2B;
+}
+
+#map .map_thumb img {
+    width: 122px;
+    height: 122px;
+}
+
+#map .markerclustercount {
+    margin-top: 8px;
+    padding-right: 2px;
+    display: inline-block;
+    font-size: 14px;
+    color: #FFF;
+}
