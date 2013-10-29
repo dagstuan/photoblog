@@ -26,7 +26,8 @@ function initmap(images) {
         iconCreateFunction: function(cluster) {
             return new L.AwesomeMarkers.icon({markerColor: 'cadetblue', html: cluster.getChildCount()})
         },
-        showCoverageOnHover: false
+        showCoverageOnHover: false,
+        maxClusterRadius: 50
     });
     
     for (var i = 0; i < images.length; i++) {
