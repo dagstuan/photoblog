@@ -1,15 +1,28 @@
-<div id="content" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;"> <!-- START content -->
-	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" style="width: {{ post.photo.image_file1x.width }}px; height: {{ post.photo.image_file1x.height }}px;" alt="{{ post.title }}"/>
-	
-	<div id='arrows'>
-		{% if prev_id %}
-		<a id="prevlink" href="/{{ prev_id }}"></a>
-		{% endif %}
+<style>
+@-moz-document url-prefix() {
+    #content img {
+        max-height: {{ post.photo.image_file1x.height }}px !important;
+    }
+}
+</style>
 
-		{% if next_id %}
-		<a id="nextlink" href="/{{ next_id }}"></a>
-		{% endif %}
-	</div>
+<div id="content" style="max-height: {{ post.photo.image_file1x.height }}px"> <!-- START content -->
+    <span class="image_content">
+        
+    	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" alt="{{ post.title }}"/>
+	
+    	<div id='arrows'>
+    		{% if prev_id %}
+    		<a id="prevlink" href="/{{ prev_id }}"></a>
+    		{% endif %}
+
+    		{% if next_id %}
+    		<a id="nextlink" href="/{{ next_id }}"></a>
+    		{% endif %}
+    	</div>
+        
+    </span>
+	
 
 </div> <!-- END content -->
 	

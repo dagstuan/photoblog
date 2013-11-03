@@ -11,6 +11,15 @@ from django.utils import dateformat
 from django.contrib.comments.models import Comment
 import datetime
 
+def _get_published_posts():
+    return Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')
+
+def _get_post(post_id=None):
+    if post_id:
+        return get_object_or_404(Post, id=post_id)
+    else:
+        return _get_published_posts()[0]
+
 def post(request, post_id=None, comments=False):
     post = _get_post(post_id)
 	
@@ -60,12 +69,6 @@ def get_comments(request, post_id):
 
     return render_to_response('photos/comments.html', csrfContext)
 
-def _get_post(post_id=None):
-    if post_id:
-        return get_object_or_404(Post, id=post_id)
-    else:
-        return Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')[0]
-
 def _get_prev_and_next_post(post):
     prev_id = None
     next_id = None
@@ -80,8 +83,7 @@ def _get_prev_and_next_post(post):
         pass
         
     try:
-        next_id = Post.objects.filter(pub_date__gte=post.pub_date) \
-                              .filter(pub_date__lte=datetime.date.today()) \
+        next_id = Post.objects.filter(pub_date__gte=post.pub_date, pub_date__lte=datetime.date.today()) \
                               .exclude(id=post.id) \
                               .exclude(id__lte=post.id, pub_date=post.pub_date) \
                               .order_by('pub_date', 'id')[0] \
@@ -113,10 +115,7 @@ def get_images_for_map(request):
     if request.is_ajax() == False:
         raise Http404
     
-    posts = Post.objects.filter(pub_date__lte=datetime.date.today()) \
-                        .exclude(photo__exif_latitude = -1) \
-                        .exclude(photo__exif_longitude = -1) \
-                        .order_by('-pub_date', '-id')
+    posts = _get_published_posts().exclude(photo__exif_latitude = -1, photo__exif_longitude = -1)
                         
     ret_json = []
     
@@ -138,7 +137,7 @@ def _get_posts_for_browse_grid(year_id=None, tag_name=None, posts=None):
     # If posts are supplied our task is purely filtering, so
     # we do not need to fetch the posts.
     if not posts:
-        posts = Post.objects.filter(pub_date__lte=datetime.date.today()).order_by('-pub_date', '-id')
+        posts = _get_published_posts()
     
     # Getting posts to display. If neither year or tag is supplied,
     # we already have the posts from above
