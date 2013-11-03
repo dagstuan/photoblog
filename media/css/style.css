@@ -549,10 +549,6 @@ and (max-device-width : 568px) {
 }
 
 @media all and (max-width: 919px) {
-    #content {
-        margin-bottom: 0;
-    }
-    
     #content_wrap {
         width: 96%;
         margin: 0 auto;
@@ -583,6 +579,7 @@ and (max-device-width : 568px) {
         border-bottom: 1px solid #333;
         padding-top: 5px;
         padding-bottom: 3px;
+        margin-bottom: 0;
     }
     
     #content img {
