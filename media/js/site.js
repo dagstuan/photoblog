@@ -27,7 +27,7 @@
       zIndex: 2e9, // The z-index (defaults to 2000000000)
       top: 'auto', // Top position relative to parent in px
       left: 'auto' // Left position relative to parent in px
-    }
+    };
     
     $(document).ready(function() {
         History.Adapter.bind(window,'statechange',historyUpdated);
@@ -41,11 +41,9 @@
             $('#bottom').css('visibility', 'hidden');
             $('#arrows').css('display', 'none');
             $('#footer').css('display', 'none');
-            
-            $('.image_content').css('display', 'none')
+            $('.image_content').css('display', 'none');
             
             current_photo.retina();
-            $('.image_content').css('display', 'none');
         }
         else if($('#browse_grid').length > 0) {
             setupGridLoading();
@@ -60,6 +58,7 @@
     })
     
     $(window).on('resize', function (){ 
+        // To force chrome to resize the width of the image.
         $('#current_photo').redraw();
     });
     
@@ -67,7 +66,7 @@
         current_photo = $('#current_photo');
         
         if (current_photo.length > 0) {
-            var imageContent = $('.image_content')
+            var imageContent = $('.image_content');
             
             imageContent.css('display', '');
                         
@@ -76,15 +75,12 @@
             
             current_photo.css('display', 'none');
             
-            console.log(imgContentHeight);
-            console.log(imgContentWidth);
-
-            imageContent.css('width', imgContentWidth);
-            imageContent.css('height', imgContentHeight);
+            imageContent.css('width', imgContentWidth)
+                        .css('height', imgContentHeight);
 
             var background = generateLoadingBackground(imageContent);
              
-            opts['top'] = imgContentHeight / 2 - 40
+            opts['top'] = imgContentHeight / 2 - 40;
             
             displayLoading(false, imageContent, background);
                 
@@ -93,12 +89,13 @@
             current_photo.one('load', function() {
                 hideLoading();
                 $('#bottom').css('display', 'none')
-                             .css('visibility', '')
-                             .fadeIn();
+                            .css('visibility', '')
+                            .fadeIn();
+                            
                 $('#arrows').fadeIn();
                 $('#footer').fadeIn();
-                imageContent.css('width', '');
-                imageContent.css('height', '');
+                imageContent.css('width', '')
+                            .css('height', '');
                 current_photo.fadeIn(function() {
                     ready = true;
                 });
@@ -107,10 +104,6 @@
                  if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
             });
         }
-    });
-    
-    $(document).ready(function() {
-        
     });
 
     // Key bindings
@@ -142,8 +135,6 @@
     }
 
     var generateLoadingBackground = function(loadingElement) {
-        var width = loadingElement.width();
-        
         var cont = $('content')
         
         var background = $('<div></div>').attr('class', 'loadingMessage')
@@ -308,7 +299,7 @@
             result_html.filter('#content').find('img').one('load', function() {
                 hideLoading();
             
-                var footer = $('#footer')
+                var footer = $('#footer');
             
                 // If the footer isnt being currently animated, it means that no other
                 // methods are hiding it. So we'll need to do it ourselves.
@@ -350,11 +341,11 @@
     // Called when a photo is to be replaced, going from a photo to another photo
     var replacePhoto = function(url) {
         var content_wrap = $('#content_wrap');
-        var imageContent = $('.image_content')
+        var imageContent = $('.image_content');
         
         var background = generateLoadingBackground(imageContent);
         
-        opts['top'] = imageContent.height() / 2 - 40
+        opts['top'] = imageContent.height() / 2 - 40;
         
         displayLoading(true, imageContent, background);
             
@@ -392,6 +383,8 @@
     }
 
     var setupGridLoading = function() {
+        $('#browse_grid img').retina();
+        
         opts['top'] = '44px';
         opts['left'] = '43px';
 
@@ -400,9 +393,7 @@
         });
 
         opts['top'] = 'auto';
-        opts['left'] = 'auto';
-    
-        $('#browse_grid img').retina()
+        opts['left'] = 'auto';        
 
         $('#browse_grid img').css('display', 'none')
                              .one('load', fadeInPhoto)
