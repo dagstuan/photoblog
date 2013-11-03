@@ -1,4 +1,10 @@
 (function() {
+    jQuery.fn.redraw = function() {
+        return this.hide(0, function() {
+            $(this).show();
+        });
+    };
+    
     // Makes sure the user cant spam the navigation buttons without animations finishing.
     var ready = false;
     var History = window.History;
@@ -24,6 +30,10 @@
     }
     
     $(document).ready(function() {
+        History.Adapter.bind(window,'statechange',historyUpdated);
+    
+        $.ajaxSetup({cache: false});
+        
         current_photo = $('#current_photo');
         
         if (current_photo.length > 0) {     
@@ -37,26 +47,25 @@
             current_photo.retina();
             $('.image_content').css('display', 'none');
         }
+        else if($('#browse_grid').length > 0) {
+            setupGridLoading();
+        }
+        else if($('#about').length > 0) {
+            $('#about img').css('display', 'none')
+                           .one('load', fadeInPhoto)
+                           .each(function() {
+                               if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
+                           });
+        }
     })
-    
-    jQuery.fn.redraw = function() {
-        return this.hide(0, function() {
-            $(this).show();
-        });
-    };
-    
     
     $(window).on('resize', function (){ 
         $('#current_photo').redraw();
     });
     
     $(window).load(function() {
-        History.Adapter.bind(window,'statechange',historyUpdated);
-    
-        $.ajaxSetup({cache: false});
-    
         current_photo = $('#current_photo');
-    
+        
         if (current_photo.length > 0) {
             var imageContent = $('.image_content')
             
@@ -98,16 +107,10 @@
                  if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
             });
         }
-        else if($('#browse_grid').length > 0) {
-            setupGridLoading();
-        }
-        else if($('#about').length > 0) {
-            $('#about img').css('display', 'none')
-                           .one('load', fadeInPhoto)
-                           .each(function() {
-                               if(this.complete || (jQuery.browser.msie && parseInt(jQuery.browser.version) == 6))  $(this).trigger("load");
-                           });
-        }
+    });
+    
+    $(document).ready(function() {
+        
     });
 
     // Key bindings
