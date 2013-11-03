@@ -84,12 +84,12 @@
 
             var background = generateLoadingBackground(imageContent);
              
-            opts['top'] = $('#current_photo').height() / 2 - 30
+            opts['top'] = imgContentHeight / 2 - 40
             
             displayLoading(false, imageContent, background);
                 
             opts['top'] = 'auto';
-        
+                    
             current_photo.one('load', function() {
                 hideLoading();
                 $('#bottom').css('display', 'none')
@@ -353,9 +353,13 @@
         var imageContent = $('.image_content')
         
         var background = generateLoadingBackground(imageContent);
-            
+        
+        opts['top'] = imageContent.height() / 2 - 40
+        
         displayLoading(true, imageContent, background);
             
+        opts['top'] = 'auto';
+        
         loadPhotoContent(content_wrap, url);
     }
 
