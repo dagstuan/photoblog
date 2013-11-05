@@ -592,6 +592,17 @@ and (max-device-width : 568px) {
         margin-left: 0;
     }
     
+    #bottom .head {
+        float: none;
+        margin-tom: 3px;
+        margin-bottom: 0;
+    }
+    
+    #bottom .comment {
+        margin-bottom: 10px;
+        margin-left: 3px;
+    }
+    
     #bottom #comments_count {
         display: none;
     }
@@ -668,7 +679,8 @@ and (max-device-width : 568px) {
 #map { 
     margin: 0 auto;
     width: 98%;
-    height: 700px;
+    height: 600px;
+    max-height: 600px;
 }
 
 #map .leaflet-popup-content-wrapper {
@@ -679,9 +691,46 @@ and (max-device-width : 568px) {
     background: #2B2B2B;
 }
 
-#map .map_thumb img {
+#map .map_thumb_image {
+    display: none;
+}
+
+#map .map_thumb_image.selected {
+    display: inline-block;
+}
+
+#map .leaflet-popup-content img {
     width: 122px;
     height: 122px;
+}
+
+#map .zoomToBoundsAnchor {
+    display: block;
+    text-align: center;
+    color: #DDD;
+    height: 8px;
+    margin-top: 2px;
+    text-decoration: underline;
+}
+
+#map .zoomToBoundsAnchor .fa-crosshairs {
+    font-size: 1.8em;
+}
+
+#map #prevlink {
+    top: 33%;
+    height: 44px;
+    width: 23px;
+    left: -25px;
+    background-size: contain;
+}
+
+#map #nextlink {
+    top: 33%;
+    height: 44px;
+    width: 23px;
+    right: -25px;
+    background-size: contain;
 }
 
 #map .markerclustercount {
