@@ -89,7 +89,8 @@
         popup = L.popup()
                  .setContent(popupContent.html());
 
-        layer.options.icon.bindPopup(popup, { offset: [0, -26] });
+        layer.options.icon.bindPopup(popup, { offset: [0, -26],
+                                              autoPanPadding: [28, 7] });
         
         layer.options.icon.openPopup();
         
