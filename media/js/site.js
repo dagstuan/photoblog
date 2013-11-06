@@ -356,20 +356,21 @@
 
     var updateGrid = function(url) {
         var browse_grid = $('#browse_grid');
+        var browse_grid_wrapper = $('#browse_grid_wrapper')
         
-        $('#browse_grid_wrapper').css('width', browse_grid.width())
-                                 .css('height', browse_grid.height());
+        browse_grid_wrapper.css('width', browse_grid.width())
+                           .css('height', browse_grid.height());
     
         var browseGridIsFadedOut = browse_grid.fadeOut(200).promise();
+        
+        opts['top'] = ($(window).height() - $('#top').height()) / 2;
+        opts['left'] = ($(window).width() - $('#browse_menu').width()) / 2 - 20;
             
-        opts['top'] = '220px'
-        opts['left'] = '320px'
-            
-        displayLoading(true, browse_grid);
-            
+        displayLoading(true, $('body'));
+        
         opts['top'] = 'auto';
         opts['left'] = 'auto';
-            
+        
         var id = url.split('/')[2];
             
         var viewIsScrolled = scrollViewTo($('body'), 500);
@@ -377,9 +378,11 @@
         var fetchedBrowseGrid = $.get('/update_browse_grid/' + id + '/');
             
         $.when(fetchedBrowseGrid, browseGridIsFadedOut, viewIsScrolled).then(function(browseGridResult) {
-            $('#browse_grid_wrapper').css('width', '')
-                                     .css('height', '');
-            
+            browse_grid_wrapper.css('width', '')
+                               .css('height', '');
+                               
+            hideLoading();
+                        
             browse_grid.html(browseGridResult[0]);
         
             setupGridLoading();
