@@ -97,13 +97,20 @@
         $('.zoomToBoundsAnchor').on('click', createZoomToBoundsClickFunction(layer.options.icon, layer));
         
         var swapImages = function() {
+            var parent = $('.map_thumb_image').parent();
+            parent.css('height', parent.height())
+            
             $('.map_thumb_image.selected').fadeOut(100, function() {
                 $(this).removeClass('selected');
-                
-                $('.map_thumb_image:eq(' + currentImage + ')').css('display', 'none')
-                                                              .addClass('selected')
-                                                              .fadeIn(100);
+
+                $('.map_thumb_image:eq(' + currentImage + ')').addClass('selected')
+                                                              .hide()
+                                                              .fadeIn(100, function() {
+                                                                  parent.css('height', '');
+                                                              });
             });
+            
+            
         }
         
         var arrowClickFunc = function(forward) {

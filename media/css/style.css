@@ -163,9 +163,9 @@ html {
     display: block;
 }
 
-#browse_grid {
-    float: left;
+#browse_grid_wrapper {
     text-align: left;
+    float: left;
     width: 76%;
 }
 

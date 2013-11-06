@@ -356,30 +356,36 @@
 
     var updateGrid = function(url) {
         var browse_grid = $('#browse_grid');
+        
+        $('#browse_grid_wrapper').css('width', browse_grid.width())
+                                 .css('height', browse_grid.height());
     
         var browseGridIsFadedOut = browse_grid.fadeOut(200).promise();
-    
+            
         opts['top'] = '220px'
         opts['left'] = '320px'
-    
+            
         displayLoading(true, browse_grid);
-    
+            
         opts['top'] = 'auto';
         opts['left'] = 'auto';
-    
+            
         var id = url.split('/')[2];
-    
+            
         var viewIsScrolled = scrollViewTo($('body'), 500);
-    
+            
         var fetchedBrowseGrid = $.get('/update_browse_grid/' + id + '/');
-    
+            
         $.when(fetchedBrowseGrid, browseGridIsFadedOut, viewIsScrolled).then(function(browseGridResult) {
+            $('#browse_grid_wrapper').css('width', '')
+                                     .css('height', '');
+            
             browse_grid.html(browseGridResult[0]);
-
+        
             setupGridLoading();
-
+        
             browse_grid.fadeIn(200);
-        })
+        });
     }
 
     var setupGridLoading = function() {
