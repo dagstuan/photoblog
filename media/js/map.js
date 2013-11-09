@@ -10,19 +10,19 @@
     };
 
     function createMarkerForImage(image) {
+        var source = $('#popup-template').html();
+        var template = Handlebars.compile(source);
+        var context = {
+            href: image.link,
+            url: image.url,
+            title: image.title
+        }
         
-        var map_thumb = $('<div></div>').addClass('map_thumb');
-        
-        $('<a></a>').attr('href', image.link)
-                    .appendTo(map_thumb);
-        
-        $('<img></img>').attr('src', image.url)
-                        .attr('alt', image.title)
-                        .appendTo(map_thumb);
+        var html = template(context);
 
         var popup = L.popup()
                      .setLatLng(image.coords)
-                     .setContent(map_thumb.html());
+                     .setContent(html);
 
         var marker = L.marker(image.coords, {icon: L.AwesomeMarkers.icon({icon: 'camera', markerColor: 'cadetblue', prefix: 'fa'}) })
                       .bindPopup(popup); 
@@ -47,47 +47,33 @@
         var layer = evt.layer;
         var images = layer.getAllChildMarkers();
         var currentImage = 0;
-        var popupContent = $('<div></div>').addClass('map_thumb');
-        
-        
-        for (var i=0;i<images.length; i++) {
-            var image = images[i].image;
-            
-            var anchor = $('<a></a>').attr('href', image.link)
-                                     .attr('class', 'map_thumb_image');
-            
-            if (i == 0) anchor.addClass('selected');
-                        
-            anchor.append($('<img />').attr('src', image.url)
-                                      .attr('alt', image.title));
-                                      
-                                  	
-            popupContent.append(anchor);
+
+        var source = $('#cluster-popup-template').html();
+        var template = Handlebars.compile(source);
+        var context = {
+            images: []
         }
         
-        var arrows = $('<div><div>').attr('id', 'arrows');
+        for (var i=0; i<images.length; i++) {
+            var image = images[i].image;
+            
+            var imgclass = "map_thumb_image";
+            if (i === 0) {
+                imgclass += " selected";
+            }
+            
+            context.images.push({
+                href: image.link,
+                url: image.url,
+                title: image.title,
+                imgclass: imgclass
+            });
+        }
         
-        $('<a></a>').attr('id', 'prevlink')
-                    .attr('href', '#')
-                    .appendTo(arrows);
-        
-        $('<a></a>').attr('id', 'nextlink')
-                    .attr('href', '#')
-                    .appendTo(arrows);
-        
-        arrows.appendTo(popupContent);
-        
-        var zoomToBoundsAnchor = $('<a></a>').attr('href', '#')
-                                             .attr('class', 'zoomToBoundsAnchor')
-        
-        $('<i></i>').addClass('fa fa-crosshairs')
-                    .appendTo(zoomToBoundsAnchor);
-        
-        
-        popupContent.append(zoomToBoundsAnchor);
+        var html = template(context);
         
         popup = L.popup()
-                 .setContent(popupContent.html());
+                 .setContent(html);
 
         layer.options.icon.bindPopup(popup, { offset: [0, -26],
                                               autoPanPadding: [28, 7] });
