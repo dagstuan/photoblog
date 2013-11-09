@@ -1,4 +1,4 @@
-<style>
+<style scoped>
 @-moz-document url-prefix() {
     #content img {
         max-height: {{ post.photo.image_file1x.height }}px !important;
@@ -7,8 +7,7 @@
 </style>
 
 <div id="content" style="max-height: {{ post.photo.image_file1x.height }}px"> <!-- START content -->
-    <span class="image_content">
-        
+    <div class="image_content">      
     	<img id="current_photo" src="{{ post.photo.image_file1x.url }}" alt="{{ post.title }}"/>
 	
     	<div id='arrows'>
@@ -19,11 +18,8 @@
     		{% if next_id %}
     		<a id="nextlink" href="/{{ next_id }}"></a>
     		{% endif %}
-    	</div>
-        
-    </span>
-	
-
+    	</div>       
+    </div>
 </div> <!-- END content -->
 	
 {% include "photos/bottom.html" %}
