@@ -135,27 +135,15 @@
     }
 
     var generateLoadingBackground = function(loadingElement) {
-        var cont = $('content')
-        
-        var background = $('<div></div>').attr('class', 'loadingMessage')
-                                         .css('width', cont.width())
-                                         .css('height', cont.height())
-                                         .css('position', 'absolute')
-                                         .css('top', '0')
-                                         .css('display', 'none')
-                                         .css('right', '50%');
+        var background = $('<div></div>').attr('class', 'loadingMessage');
         
         var inner = $('<div></div>').attr('class', 'innerLoading')
-                                         .css('width', loadingElement.width())
-                                         .css('height', loadingElement.height())
-                                         .css('position', 'relative')
-                                         .css('background', '#2B2B2B')
-                                         .css('opacity', '0.7')
-                                         .css('padding', loadingElement.css('padding'))
-                                         .css('right', '-50%')
-                                         .appendTo(background);
+                                    .css('width', loadingElement.width())
+                                    .css('height', loadingElement.height())
+                                    .css('padding', loadingElement.css('padding'))
+                                    .appendTo(background);
     
-        return background
+        return background;
     }
 
     var displayLoading = function(fade, element, background) {

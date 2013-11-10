@@ -95,8 +95,6 @@
                                                                   parent.css('height', '');
                                                               });
             });
-            
-            
         }
         
         var arrowClickFunc = function(forward) {
