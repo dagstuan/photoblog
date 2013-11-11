@@ -120,9 +120,9 @@
             }
         }
         
-        $('#prevlink').on('click', arrowClickFunc(false));
+        $('#prevclusterlink').on('click', arrowClickFunc(false));
         
-        $('#nextlink').on('click', arrowClickFunc(true));
+        $('#nextclusterlink').on('click', arrowClickFunc(true));
     }
 
     function initmap(images) {

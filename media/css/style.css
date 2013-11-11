@@ -120,7 +120,7 @@ html {
     color: #666;
 }
 
-#prevlink {
+.left_nav_arrow {
     position: absolute;
     top: 43%;
     height: 60px;
@@ -129,7 +129,7 @@ html {
     background-image: url('/media/static/leftarrow.gif');
 }
 
-#nextlink {
+.right_nav_arrow {
     position: absolute;
     top: 43%;
     height: 60px;
@@ -730,7 +730,7 @@ and (max-device-width : 568px) {
     font-size: 1.8em;
 }
 
-#map #prevlink {
+#map .left_nav_arrow {
     top: 33%;
     height: 44px;
     width: 23px;
@@ -738,7 +738,7 @@ and (max-device-width : 568px) {
     background-size: contain;
 }
 
-#map #nextlink {
+#map .right_nav_arrow {
     top: 33%;
     height: 44px;
     width: 23px;

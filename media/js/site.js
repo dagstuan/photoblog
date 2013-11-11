@@ -112,9 +112,11 @@
     
         if((e.keyCode == 37 || e.keyCode == 74) && tag != 'input' && tag != 'textarea') {
             $('#prevlink').trigger('click');
+            $('#prevclusterlink').trigger('click');
         }
         else if ((e.keyCode == 39 || e.keyCode == 75) && tag != 'input' && tag != 'textarea') {
             $('#nextlink').trigger('click');
+            $('#nextclusterlink').trigger('click');
         }
     });
 
@@ -512,7 +514,7 @@
         History.pushState({url: url}, null, url + '/');
     });
 
-    $(document).on('click', '#browse_grid a, #map .map_thumb a', function(evt) {
+    $(document).on('click', '#browse_grid a, #map a.map_thumb_image', function(evt) {
         evt.preventDefault();
     
         url = $(this).attr('href');
