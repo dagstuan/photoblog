@@ -93,7 +93,7 @@ def _get_prev_and_next_post(post):
     
     return prev_id, next_id
     
-def map(request):
+def map(request, post_id=None):
     if request.is_ajax():
         html = render_to_string('photos/map_content.html')
         footer = render_to_string('default_footer.html')
@@ -122,6 +122,7 @@ def get_images_for_map(request):
     for post in posts:
         ret_json.append({
             'title': post.title,
+            'id': post.id,
             'absolute_url': post.get_absolute_url(),
             'image_url': post.photo.image_thumb1x.url,
             'latitude': post.photo.exif_latitude,

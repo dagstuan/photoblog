@@ -2,7 +2,8 @@
     var api_key = '786f2efb7e2546e2b3ab5ad399271d6c';
     var map;
     
-    function Image(link, coords, url, title) {
+    function Image(id, link, coords, url, title) {
+        this.id = id;
         this.link = link;
         this.coords = coords;
         this.url = url;
@@ -145,27 +146,48 @@
             maxClusterRadius: 30
         });
         
-        markers.on('clusterclick', function (a) {
-            createMarkerForCluster(a);
+        markers.on('clusterclick', function (evt) {
+            createMarkerForCluster(evt);
         });
+        
+        var img_to_show = window.location.pathname.split('/')[2];
+        var bounds_to_fit = null;
+        var marker_to_show = null;
     
         for (var i = 0; i < images.length; i++) {
             var img_info = images[i];
             
-            var image = new Image(img_info.absolute_url, [img_info.latitude, img_info.longitude], img_info.image_url, img_info.title);
+            var image = new Image(img_info.id, img_info.absolute_url, [img_info.latitude, img_info.longitude], img_info.image_url, img_info.title);
         
             var marker = createMarkerForImage(image);
-        
+                        
+            if (img_to_show == image.id) {
+                bounds_to_fit = [img_info.latitude, img_info.longitude];
+                marker_to_show = marker;
+            }
+            
             markers.addLayer(marker);
         }
-    
+        
         map.addLayer(markers);
-        map.fitBounds(markers);
         map.keyboard.disable();
+        
+        if (bounds_to_fit != null) {
+            map.setView(bounds_to_fit, 13);
+        }
+        else {
+            map.fitBounds(markers)
+        }
         
         map.on('popupopen', function(e) {
             $('.leaflet-popup img').retina();
         });
+        
+        if (img_to_show != undefined) {
+            var visible = markers.getVisibleParent(marker_to_show);
+            
+            visible.fireEvent('click');
+        }
     }
 
     $.when($.ajax('/get_images_for_map'), $(window).load()).then(function(images) {

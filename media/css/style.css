@@ -344,6 +344,12 @@ html {
     padding: 10px;
 }
 
+#bottom #maplink {
+    float: right;
+    border-left: 1px solid #333;
+    padding: 10px;
+}
+
 #bottom #permalink {
     float: right;
     border-left: 1px solid #333;
