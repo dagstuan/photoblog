@@ -1,5 +1,6 @@
 (function() {
     var api_key = '786f2efb7e2546e2b3ab5ad399271d6c';
+    var img_to_show = window.location.pathname.split('/')[2];
     var map;
     
     function Image(id, link, coords, url, title) {
@@ -44,55 +45,19 @@
         }
     }
     
-    function createMarkerForCluster(evt) {
-        var layer = evt.layer;
-        var images = layer.getAllChildMarkers();
+    function setArrowClickFunction(images) {
         var currentImage = 0;
-
-        var source = $('#cluster-popup-template').html();
-        var template = Handlebars.compile(source);
-        var context = {
-            images: []
-        }
-        
-        for (var i=0; i<images.length; i++) {
-            var image = images[i].image;
-            
-            var imgclass = "map_thumb_image";
-            if (i === 0) {
-                imgclass += " selected";
-            }
-            
-            context.images.push({
-                href: image.link,
-                url: image.url,
-                title: image.title,
-                imgclass: imgclass
-            });
-        }
-        
-        var html = template(context);
-        
-        popup = L.popup()
-                 .setContent(html);
-
-        layer.options.icon.bindPopup(popup, { offset: [0, -26],
-                                              autoPanPadding: [28, 7] });
-        
-        layer.options.icon.openPopup();
-        
-        $('.zoomToBoundsAnchor').on('click', createZoomToBoundsClickFunction(layer.options.icon, layer));
         
         var swapImages = function() {
             var parent = $('.map_thumb_image').parent();
             parent.css('height', parent.height())
             
-            $('.map_thumb_image.selected').fadeOut(100, function() {
+            $('.map_thumb_image.selected').fadeOut(150, function() {
                 $(this).removeClass('selected');
 
                 $('.map_thumb_image:eq(' + currentImage + ')').addClass('selected')
                                                               .hide()
-                                                              .fadeIn(100, function() {
+                                                              .fadeIn(150, function() {
                                                                   parent.css('height', '');
                                                               });
             });
@@ -125,6 +90,58 @@
         
         $('#nextclusterlink').on('click', arrowClickFunc(true));
     }
+    
+    function createMarkerForCluster(evt) {
+        var layer = evt.layer;
+        var images = layer.getAllChildMarkers();
+
+        var source = $('#cluster-popup-template').html();
+        var template = Handlebars.compile(source);
+        var context = {
+            images: []
+        }
+        
+        for (var i=0; i<images.length; i++) {
+            var image = images[i].image;
+            
+            var imgclass = "map_thumb_image";
+            
+            context.images.push({
+                id: image.id,
+                href: image.link,
+                url: image.url,
+                title: image.title,
+                imgclass: imgclass
+            });
+        }
+        
+        // Set correct selected image
+        if(img_to_show == "") {
+            context.images[0].imgclass += " selected";
+        }
+        else {
+            for(var i=0; i<context.images.length; i++) {
+                if(context.images[i].id == img_to_show) {
+                    context.images[i].imgclass += " selected";
+                    break;
+                }
+            }
+        }
+                
+        var html = template(context);
+        
+        popup = L.popup()
+                 .setContent(html);
+
+        layer.options.icon.bindPopup(popup, { offset: [0, -26],
+                                              autoPanPadding: [28, 7] });
+        
+        layer.options.icon.openPopup();
+        
+        $('.zoomToBoundsAnchor').on('click', createZoomToBoundsClickFunction(layer.options.icon, layer));
+        
+        setArrowClickFunction(images);
+    }
 
     function initmap(images) {
         map = L.map('map', {
@@ -135,6 +152,9 @@
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
             maxZoom: 18
         }).addTo(map);
+        
+        var gmap_layer = new L.Google('HYBRID');
+        map.addLayer(gmap_layer);
 
         var markers = L.markerClusterGroup({
             iconCreateFunction: function(cluster) {
@@ -150,7 +170,6 @@
             createMarkerForCluster(evt);
         });
         
-        var img_to_show = window.location.pathname.split('/')[2];
         var bounds_to_fit = null;
         var marker_to_show = null;
     
@@ -183,7 +202,7 @@
             $('.leaflet-popup img').retina();
         });
         
-        if (img_to_show != undefined) {
+        if (img_to_show != "") {
             var visible = markers.getVisibleParent(marker_to_show);
             
             visible.fireEvent('click');
