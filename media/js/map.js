@@ -45,8 +45,8 @@
         }
     }
     
-    function setArrowClickFunction(images) {
-        var currentImage = 0;
+    function setArrowClickFunction(startImage, images) {
+        var currentImage = startImage;
         
         var swapImages = function() {
             var parent = $('.map_thumb_image').parent();
@@ -115,6 +115,8 @@
             });
         }
         
+        var startImage = 0;
+        
         // Set correct selected image
         if(img_to_show == "") {
             context.images[0].imgclass += " selected";
@@ -123,6 +125,7 @@
             for(var i=0; i<context.images.length; i++) {
                 if(context.images[i].id == img_to_show) {
                     context.images[i].imgclass += " selected";
+                    startImage = i;
                     break;
                 }
             }
@@ -140,7 +143,7 @@
         
         $('.zoomToBoundsAnchor').on('click', createZoomToBoundsClickFunction(layer.options.icon, layer));
         
-        setArrowClickFunction(images);
+        setArrowClickFunction(startImage, images);
     }
 
     function initmap(images) {
