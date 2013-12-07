@@ -119,13 +119,16 @@
         
         // Set correct selected image
         if(img_to_show == "") {
+            console.log("img_to_show doesnt exist");
             context.images[0].imgclass += " selected";
+            
         }
         else {
             for(var i=0; i<context.images.length; i++) {
                 if(context.images[i].id == img_to_show) {
                     context.images[i].imgclass += " selected";
                     startImage = i;
+                    img_to_show = "";
                     break;
                 }
             }
