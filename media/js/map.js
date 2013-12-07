@@ -119,7 +119,6 @@
         
         // Set correct selected image
         if(img_to_show == "") {
-            console.log("img_to_show doesnt exist");
             context.images[0].imgclass += " selected";
             
         }
@@ -128,7 +127,6 @@
                 if(context.images[i].id == img_to_show) {
                     context.images[i].imgclass += " selected";
                     startImage = i;
-                    img_to_show = "";
                     break;
                 }
             }
@@ -209,6 +207,8 @@
             var visible = markers.getVisibleParent(marker_to_show);
             
             visible.fireEvent('click');
+            
+            img_to_show = "";
         }
     }
 
